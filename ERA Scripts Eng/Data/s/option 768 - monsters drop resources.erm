@@ -10,7 +10,7 @@ ZVSE2
 ** a precious resource (or sometimes wood/ore + a precious resource) that you
 ** can claim if you defeat them in combat.
 
-** Gathering up the resources uses 500 movement points, or the hero's remaining
+** Gathering up the resources uses 300 movement points, or the hero's remaining
 ** movement, whichever is less.
 
 ** Crystal Dragons have extra crystal, Red, Black, Darkness and Rust Dragons
@@ -215,16 +215,18 @@ ZVSE2
   !!VRi^es_768_collectRes_%y-10^:S(collectRes); [Store selected option unless disabled]
 !!en;
 
-; Set collectRes to FALSE for AI unless they have fewer than 500 mp
+; _Set collectRes to FALSE for AI unless they have fewer than 300 mp_
 !!if&-1000;
-  !!VR(collectRes):S(FALSE); [Default to no for AI]
-  !!VR(collectRes)&y-22<500:S(TRUE); [AI hero only gathers resources if it has less than 500 movement points remaining]
+  !!VR(collectRes):S(TRUE); [AI always picks up]
+**;  !!VR(collectRes)&y-22<300:S(TRUE); [AI hero only gathers resources if it has less than 300 movement points remaining]
 !!en;
 
 !!FU&(collectRes)<>(TRUE):E; [Exit if hero doesn't gather resources]
 
-!!VRy-22:-500 F0/(INT_MAX); [Remove 500 movement points: y-22. Minimum 0]
-!!HEy-2:Wy-22; [Remove 500 movement points from hero]
+!!VRy-22:-300 F0/(INT_MAX); [Remove 300 movement points: y-22. Minimum 0]
+!!HEy-2:Wy-22; [Remove 300 movement points from hero]
+!!VRy-4:Sy-4 *10;  [Multiply the original gold value by 10 and assign it back to y-4]
+
 
 !!if&1000;
   !!HEy-2:B0/?z1; [Hero's name]
