@@ -211,7 +211,7 @@
             "enable": "Enable the reminder of Monster Resources",
             "exit": "Exit without changes",
             "ask": "The @mon@ had resources. Do you want to collect them?\n\n(Right-click on minimap to re-enable option display)",
-            "opt1": "Yes, collect the resources, uses 500 movement points (Currently: @movement@).",
+            "opt1": "Yes, collect the resources, uses 300 movement points (Currently: @movement@).",
             "opt2": "No, don't collect the resources, I'm in a hurry!",
             "opt3": "Yes, collect them every time and don't display these options again.",
             "opt4": "No, don't collect them and don't display these options again.",

@@ -654,8 +654,8 @@ EveryDays Routine
 !?OB12; [campfire]
 !!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
 
-!?OB17; [most creature dwellings]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+**; !?OB17; [most creature dwellings]
+**; !!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
 
 !?OB29; [flotsam]
 !!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
@@ -765,11 +765,11 @@ EveryDays Routine
       !!en;
     !!en;
 
-    !!VR(rogueNum:y):Si^timerWeek^ *10; [10 Rogues per elapsed week]
+    !!VR(rogueNum:y):Si^timerWeek^ *16; [16 Rogues per elapsed week]
 
 
     !!HE(hero):Ed/?(lv:y)/1; [get hero level]
-    !!VR(rogueNum):S(lv) *10 +(rogueNum); [#Rogues = 10*week + 10*level]
+    !!VR(rogueNum):S(lv) *4 +(rogueNum); [#Rogues = 16*week + 4*level]
 
     !!IF:V875/1;           (For mithril and chest scripts)
     *!UN:C(ADV_MANAGER)/4/?(advMgr:y);
@@ -792,7 +792,7 @@ EveryDays Routine
 
     !!if&(owner)<>(NO_OWNER);
       !!if&(terrain)<>8;
-        !!VR(gold:y):S(rogueNum) *10 +300; [10 gold per Rogue + 300]
+        !!VR(gold:y):S(rogueNum) *20 +200; [10 gold per Rogue + 300]
         !!OW:R(owner)/(RES_GOLD)/d(gold); [give gold if hero lived]
         !!IF&i^timerIsHuman^:Q2/(PIC_TYPE_RES_GOLD)/(gold)/(MSG_TYPE_MES)/^%T(wog.127.treasure)^;
       !!en;
