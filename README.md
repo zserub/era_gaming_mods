@@ -32,7 +32,7 @@ Mods of Era Gaming Build
 - **Resistance**: *original* but `+10%`
 - **Scholar**: *(full reworked, merged with wogified eagle eye and original learning)* one new 2nd/3th/4th spell every week of elemental magic possessed; `+10%` max mana; `+10% XP`
 - **Sorcery**: allows your hero to learn 3rd/4th/5th level **harmful** spells and increase spell dmg `+5%`
-- **Warfare**: gives control of defense towers to the hero. Increase dmg/healing of warmachines `+25%`
+- **Warfare**: gives control of defense towers to the hero. Increase dmg/healing of warmachines `+5% /hero lvl`
 - **Water Magic**: *original*
 - **Wisdom**: allows your hero to learn 3rd/4th/5th level **helpful** spells and increase buff durations `+1`
 
