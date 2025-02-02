@@ -4943,29 +4943,43 @@ Vision of the Eagle: If the skill is granted by the Set and not the actual skill
 !!SN:W^Magic_Artillery_Shoot_Flag^/?y1;    
 !!FU&y1=1:E;
 
-!!BA:Q?f;                               [Check for quick battle]
 !!BA:H0/?y1;                            [get attacking hero #]
 !!HEy1:S11/?y8;                         [check EE]
-!!BA:H1/?y10;                           [get defending hero #]
-!!HEy10&y10>=0:A2/65/?y22/?y23 B0/?z1;  [Check defender for Emblem of Cognizance, this prevents the damage from EE]
-!!if&i^battle_isVisible^/y23=1/y8>0; 
-  !!SN:T^AC_Misc.Magic_Artillery_Prot^/?z2/^name^/z1 Iz2/?z2;
-  !!BU:Mz2;
-  !!SN:W^Magic_Artillery_Shoot_Flag^/1; [reset var after action]
+
+!!if&y8>0;
+  !!BA:H1/?y10;                         [get defending hero #]
+  !!VRy23:S0;
+
+  !!if&y10>=0;
+    !!HEy10:A2/65/?y22/?y23 B0/?z1;     [Check defender for Emblem of Cognizance, this prevents the damage from EE]
+
+    !!if&i^battle_isVisible^/y23>0; 
+      !!SN:T^AC_Misc.Magic_Artillery_Prot^/?z2/^name^/z1 Iz2/?z2;
+      !!BU:Mz2;
+      !!SN:W^Magic_Artillery_Shoot_Flag^/1; [reset var after action]
+    !!en;
+  !!en;
+
+  !!FU(Magic_Artillery_Shoot1)&y23=0:P0/y1; [shoot something - attacker if defender does not have artifact]
 !!en;
-!!FU(Magic_Artillery_Shoot1)&y8>0/y23=0:P0/y1; [shoot something - attacker if defender does not have artifact]
 
 !!BA:H1/?y1;                            [get defending hero #]
 !!FU&y1<0:E;
+
 !!HEy1:S11/?y8;                         [see if defending hero has Eagle Eye]
-!!BA:H0/?y10;                           [get defending hero #]
-!!HEy10&y10>=0:A2/65/?y22/?y23 B0/?z1;  [Check defender for Emblem of Cognizance, this prevents the damage from EE]
-!!if&i^battle_isVisible^/y23=1/y8>0;
-  !!SN:T^AC_Misc.Magic_Artillery_Prot^/?z2/^name^/z1 Iz2/?z2;
-  !!BU:Mz2;
-  !!SN:W^Magic_Artillery_Shoot_Flag^/1; [reset var after action]
+
+!!if&y8>0;
+  !!BA:H0/?y10;                         [get defending hero #]
+  !!HEy10:A2/65/?y22/?y23 B0/?z1;       [Check defender for Emblem of Cognizance, this prevents the damage from EE]
+
+  !!if&i^battle_isVisible^/y23>0;
+    !!SN:T^AC_Misc.Magic_Artillery_Prot^/?z2/^name^/z1 Iz2/?z2;
+    !!BU:Mz2;
+    !!SN:W^Magic_Artillery_Shoot_Flag^/1; [reset var after action]
+  !!en;
+
+  !!FU(Magic_Artillery_Shoot1)&y23=0:P1/y1; [shoot something - defender if attacker does not have artifact]
 !!en;
-!!FU(Magic_Artillery_Shoot1)&y8>0/y23=0:P1/y1; [shoot something - defender if attacker does not have artifact]
 
 
 ** function to handle Magic Artillery, skill level y1
@@ -21527,13 +21541,15 @@ Undead stacks heal and with next attack^;                                       
 !!FU&y13<=0:E;                          [Exit if no Fire_Shield]
 
 !!BA:Hy5/?y99;
+!!FU&y99=(NO_HERO):E;
+
 !!SN:W^H3_Fire Magic_0_Hero%Y99^/?y11;  [Fire Magic Bonus handling]
-!!HEy99&y99>=0:S14/?y81 S15/?y82 S16/?y83 S17/?y84 S25/?y85 Fd/d/?y22/d S24/?y87; [Checke ob der Held Sorcery und Fire Magien hat und Sp]
+!!HEy99:S14/?y81 S15/?y82 S16/?y83 S17/?y84 S25/?y85 Fd/d/?y22/d S24/?y87; [Checke ob der Held Sorcery und Fire Magien hat und Sp]
 *!VRy85&y85><0/v7198=1:+4;
 !!FU|y81<3/y11<>1:E;
 
 !!BMy1:T?y66;                           [Archer30: It doesn't seem necessary to prevent summoning Fire Elementals from attacking Fire Elementals]
-!!FU&y66=114:E;
+!!FU&y66=(MON_FIRE_ELEMENTAL):E;
 
 !!SN:W^H3_Fire Magic_1_Hero%Y99^/?y87;  [Fire Magic Bonus handling]
 !!VRy20:S0R99;
@@ -21541,7 +21557,7 @@ Undead stacks heal and with next attack^;                                       
 !!VRy23&y87>0:+10;                      [+10% with GM]
 !!VRy23&y23>=50/y87=0:S50;              [Cap at 50%, 65% with GM @Alf]
 !!VRy23&y23>=65/y87=1:S65;
-*!FU&y20>=y23:E;                        [chance is dependant on Spell Power +20%]
+!!FU&y20>=y23:E;                        [chance is dependant on Spell Power +20%]
 
 ; Archer30: Ideally, we should also check if the targeted position has siege wall on it
 
