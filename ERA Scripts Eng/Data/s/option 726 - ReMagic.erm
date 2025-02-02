@@ -204,11 +204,11 @@ ZVSE2
 !!SS10:C0/y3 C2/y6;           [восстанавливаем стоимости базовых/продвинутых Зыбучих песков]
 !!HEy4:Id1/1;                 [возвращаем 1 маны, которая все равно тратится при нулевой стоимости заклианния]
 
-** Заклинания призыва:
-** - дают посланников вместо элементалей.
-** - имеют "стандартную" расчетную формулу (SP*a+b)
-** - получают 50% бонус при наличии у героя сферы соответствующей стихии.
-** - не имеют ограничение на призыв только одного типа существ в бою.
+** Summoning Spells:
+** - give messengers instead of elementals.
+** - have a “standard” calculation formula (SP*a+b)
+** - receive a 50% bonus if the hero has a sphere of the corresponding element.
+** - do not have a restriction on summoning only one type of creature in battle.
 !?FU(OnStartOrLoad);                  [после загрузки]
 !!UN:P726/?(wogOption:y);
 !!FU&(wogOption)<>(TRUE):E;           [выход, если опция не включена]
@@ -234,7 +234,12 @@ ZVSE2
 !!SN:E(address)/1/5928230/(ES_726_OnCombatElementalSummonCount);
 
 !?FU(ES_726_OnCombatElementalSummonCount);
-!!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/8/4/?(spellId:y);
+!#VA(hook:x);
+
+*!BG:A?(action:y);
+*!FU&(action)<>(BATTLE_ACTION_HERO_CAST):E; [This hook works with any summoning cast]
+
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/8/4/?(spellId:y);
 
 !!VR(newMonId:y):S(NO_MON);
 !!UN:C(ebp)/12/4/?(monId:y);
@@ -250,8 +255,8 @@ ZVSE2
   !!VR(newMonId):S(MON_WATER_MESSENGER);
   !!VR(artId:y):S(ART_ORB_OF_DRIVING_RAIN);
 !!el&(spellId)=(SPELL_AIR_ELEMENTAL)/(monId)=(MON_AIR_ELEMENTAL);
-  !!VR(artId:y):S(ART_ORB_OF_THE_FIRMAMENT);
   !!VR(newMonId):S(MON_AIR_MESSENGER);
+  !!VR(artId:y):S(ART_ORB_OF_THE_FIRMAMENT);
 !!en;
 
 !!if&(newMonId)<>(NO_MON);
@@ -272,7 +277,7 @@ ZVSE2
   !!en;
   !!VR(totalSummonCount):F1/(INT_MAX);
   !!VR(monInfoOffset:y):S(newMonId) *116;
-  !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/(totalSummonCount:y) C(ebp)/12/4/(newMonId:y) C(ebp)/-28/4/(monInfoOffset:y); [set new mon count and id to summon and text]
+  !!UN:C(hook)/(STRUCT_HOOK_CONTEXT_ESI)/4/(totalSummonCount:y) C(ebp)/12/4/(newMonId:y) C(ebp)/-28/4/(monInfoOffset:y); [set new mon count and id to summon and text]
 !!en;
 
 
@@ -290,8 +295,8 @@ ZVSE2
 !?FU(WOG_74_GetSummonQty);
 !#VA(hero:x) (spell:x) (level:x) (qty:x);
 
-!!UN:P726/?(eraOption:y); 
-!!FU&(eraOption)<>(TRUE):E;
+!!UN:P726/?(wogOption:y); 
+!!FU&(wogOption)<>(TRUE):E;
 
 !!SS(spell):E(level)/?(effect:y) P?(spellPwr:y);
 !!HE(hero):Fd/d/?(pwr:y)/d;
@@ -299,7 +304,7 @@ ZVSE2
 
 ; Calculate bonus from Artifacts
 !!HE(hero):A2/(ART_ORB_OF_THE_FIRMAMENT)/?i/?(hasAirOrb:y) A2/(ART_ORB_OF_DRIVING_RAIN)/?i/?(hasWaterOrb:y) A2/(ART_ORB_OF_TEMPESTUOUS_FIRE)/?i/?(hasFireOrb:y) A2/(ART_ORB_OF_SILT)/?i/?(hasEarthOrb:y);
-!!VR(totalHp)&(spell)=(SPELL_FIRE_ELEMENTAL)/(hasAirOrb)>0:*3 :2;
+!!VR(totalHp)&(spell)=(SPELL_FIRE_ELEMENTAL)/(hasFireOrb)>0:*3 :2;
 !!VR(totalHp)&(spell)=(SPELL_EARTH_ELEMENTAL)/(hasEarthOrb)>0:*3 :2;
 !!VR(totalHp)&(spell)=(SPELL_WATER_ELEMENTAL)/(hasWaterOrb)>0:*3 :2;
 !!VR(totalHp)&(spell)=(SPELL_AIR_ELEMENTAL)/(hasAirOrb)>0:*3 :2;

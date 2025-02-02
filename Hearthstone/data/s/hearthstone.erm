@@ -1,0 +1,97 @@
+ZVSE2
+
+** HEARTHSTONE MAIN SCRIPT
+** Created by Metaphysix
+
+* Left click on hero list 8 will offer you to teleport to a selected allied town
+
+!?FU(OnAdventureMapLeftMouseClick)&999/i^mouse_action^=(MOUSE_LMB_RELEASED);
+!#VAw103:S1;  [set movement refresh bit to true]
+
+!!if&i^mouse_item^=(ITEM_ADVMAP_HERO_LIST_HERO_8);  [clicked on Hero list 8]
+  !!OW:A-1/?(currentHero:y);        [get current hero ID]
+  !!IF:W(currentHero);              [call to current hero's variables]
+  !!HE(currentHero):W?(currentmp:y) G?(maxMp:y);       [get current mp, max mp]
+  *!IF:L^Hero=%(currentHero), w102=%w102^; [debug]
+
+  !!if&w102=i^timerDay^;            [already started HS in that turn]                   
+    !!IF:M^The hero has already started casting Hearthstone^;    
+    !!FU:E;                       
+  !!en;
+
+  !!if&w102>0;                      [next day with casted HS]
+
+    !!HE(currentHero):P?(mapx:y)/?(mapy:y)/?(mapz:y);          [get hero position]
+    
+    !!UN:C4314462/1/?(patch1:y);    [patch: save values of original town portal]
+    !!UN:C4315628/2/?(patch2:y); 
+
+    !!UN:C4314462/1/235;            [patch: temporarily remove movement and mana cost]
+    !!UN:C4315628/2/15851;          
+    !!UN:C(ADV_MANAGER)/4/?(advMgr:y);  [KP manage]
+
+    !!UN:R7/0/0 R5/0/0;                 [activate mouse cursor]  
+    !!SN:E4314336/2/(advMgr)/3;         [open city portal dialog]
+
+    !!HE(currentHero):P?(mapx2:y)/?(mapy2:y)/?(mapz2:y);       [get hero position]
+    *!IF:L^x1=%(mapx), x2=%(mapx2), y1=%(mapy), y2=%(mapy2)^;  [debug]
+    !!if&(mapx)<>(mapx2)|(mapy)<>(mapy2)|(mapz)<>(mapz2);      [check if hero ported]
+      !!VRw102:S0;                      [reset HS bit]
+      !!VR(reducedMP:y):S(maxMp);      
+      !!VR(reducedMP):-500 F0/(maxMp);  [Remove 500 movement points. Minimum 0]
+      !!HE(currentHero):W(reducedMP);   [restore hero's mp]
+    !!el;
+      !!IF:Q1^Do you want to cancel the cast and move on?^;
+      !!if&1;                           [if answer is yes]
+        !!HE(currentHero):W(maxMp);     [restore hero's mp]
+        !!VRw102:S0;                    [reset HS bit]
+        !!FU(get_HS_state):P;           [update hs icon]
+      !!en;
+    !!en;
+
+    !!UN:C4314462/1/(patch1);       [patch: return the check for muvpoints]
+    !!UN:C4315628/2/(patch2);       [patch: return mana and mp cost parameters]
+    !!FU:E;
+  !!en;
+
+  !!if&w102=0;
+    !!if&(currentmp)<>(maxMp);      [check if hero moved in that turn]
+      !!IF:M^You have to rest!^;    
+      !!FU:E;                       [if yes don't allow casting hs]
+    !!en;
+  
+    !!IF:Q1^Do you want to cast Hearthstone? It takes a day!^;
+    !!FU&-1:E;                      [Exit if denied, continue if accepted]
+
+    !!VRw102:Si^timerDay^;          [set current hero's W102 var]
+    !!HE(currentHero):W0;           [Set hero's movpoint to 0]
+  !!en;
+  !!FU(get_HS_state):P;             [update hs icon]
+!!en;
+
+
+* Check heroes' HS state and take their movpoints
+!?FU(OnEveryDay_Quit)&i^timerOnce^;
+  !!re i/(HERO_FIRST)/(HERO_LAST_WOG);  [loop through each hero]
+    !!IF:Wi;                            [call 'i' hero's w var]
+    !!VRw103:S1;                        [reset movement bit (defult is true)]
+    !!if&w102>0;                      
+      !!HEi:W0;                         [set hero's mp to 0]
+      *!IF:L^Hero #%i has 0 mp^;        [debug]
+    !!en;
+  !!en;
+
+!?FU(OnHeroMove)&w103;    [update on hero movement once]
+  !!FU(get_HS_state):P;
+
+!?FU(OnSetActiveHero);
+  !!FU(get_HS_state):P;   [update hs icon when new hero selected]
+
+
+*** Loading ERM Hooker ***
+!?FU(OnStartOrLoad);
+!!SN:L^erm_hooker.era^/?(hooker:y);   [load hooker]
+!!FU&(hooker)=0:E;
+
+!!SN:A(hooker)/^SetHook^/?(hookingFuncAddress:y);
+!!FU(CreateERMHook):P(hookingFuncAddress);

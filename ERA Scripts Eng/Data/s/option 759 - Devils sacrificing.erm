@@ -88,8 +88,9 @@ ZVSE2
 !!VR(result):S(FALSE);
 
 !!if&(stack)>(NO_STACK)/(stack)<>i^battle_current_stack^;
-  !!FU&(stack)<=(BATTLE_ATTACKER_STACK_LAST)/i^battle_current_stack^>=(BATTLE_DEFENDER_STACK_FIRST):E; [выход, если курсор наведен на вражеский отряд]
-  !!FU&(stack)>=(BATTLE_DEFENDER_STACK_FIRST)/i^battle_current_stack^<=(BATTLE_ATTACKER_STACK_LAST):E; [...]
+  ; Exit if the side doesn't match
+  !!BM(stack):I?(side:y);
+  !!FU&(side)<>i^battle_current_side^:E;
 
   ; Exit if the victim is not a living creature/is summoned
   !!BM(stack):F?(monFlags:y);
@@ -120,30 +121,37 @@ ZVSE2
 
 ; Sacrifce the target, manage flags and memory
 !!BM(victimStack):Fd(MON_FLAG_SACRIFICED) Fd(MON_FLAG_NO_COLORING) Fd(MON_FLAG_CLONE); [добавление флагов "Принесен в жертву", "Клон", "Не меняет цвет при клонироании" жертвенному отряду]
-!!UN:C6919200/4/?(value:y);                [combatmanager]
-!!VR(devilPtr:y):S(devilStack) *1352 +21708 +(value); [отряд Архидьяволов/Баронов для атаки]
-!!VR(victimPtr:y):S(victimStack) *1352 +21708 +(value); [жертвенный отряд для атаки]
+!!BM(devilStack):Z?(devilStruct:y);
+!!BM(victimStack):Z?(victimStruct:y);
 
+; Play sound and lure attack animation
 !!UN:C4462626/1/1;                         [анимациия атаки "подманивание"]
 !!SN:P^SACRIF1.wav^;                       [воспроизведение звука]
 !!BM(victimStack):V51;                     [анимация "Жертва" на жертвенном отряде]
-!!SN:E4461360/2/(devilPtr)/(victimPtr)/2;  [Атака Архидьяволов/Баронов]
+!!SN:E4461360/2/(devilStruct)/(victimStruct)/2; [Атака Архидьяволов/Баронов]
+
+; Show battle log
+!!SN:H^monname^/(victimType)/1/?(victimName:z);
+!!SN:H^monname^/(devilType)/1/?(devilName:z);
+!!SN:T^es.759.battleLog^/?(battleLog:z)/^devil^/(devilName)/^victim^/(victimName);
+!!MM:S(battleLog);
+
 !!SN:P^RESURECT.wav^;                      [воспроизведение звука]
 !!BM(devilStack):V50;                      [анимация на отряде Архидьяволов]
 
 ; Set up new number/hp/spell of the devil
 !!BM(devilStack):N(newNum) L(newLostHp) Ed-1; [восстановление Архидьяволов с уменьшением количества заклинаний отряда]
 
-; Play the attack animation and msg on the battlefield
+; restore attack animation
 !!UN:C4462626/1/13;                        [анимациия атаки по умолчанию]
-
-!!SN:H^monname^/(victimType)/1/?(victimName:z);
-!!SN:H^monname^/(devilType)/1/?(devilName:z);
-!!SN:T^es.759.battleLog^/?(battleLog:z)/^devil^/(devilName)/^victim^/(victimName);
-!!MM:S(battleLog);
 
 ; Skip this turn
 !!BG:A(BATTLE_ACTION_SKIP);                [пропуск хода отрядом]
+
+; Update the next stack turn (in case the next stack is sacrificed and turn order messes up)
+; Seems not required? Not sure
+!!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
+!!SN:E4607072/(CALLCONV_THISCALL)/(cmbMgr)/(TRUE);
 
 ** AI
 

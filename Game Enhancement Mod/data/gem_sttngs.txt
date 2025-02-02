@@ -1,0 +1,25 @@
+
+
+
+	#	505	-1	-1	344	448	20	-1		23
+hint	Text	23	9	423	326	24	SmalFont.fnt	1	0	1	8	
+	Pcx	99	139	367	66	34	box64x32.pcx	2048	
+	Button	30722	140	368	64	32	iok6432.def	41	
+	Button	30722	140	368	64	32	iok6432.def	1	
+	Button	30722	140	368	64	32	iok6432.def	28	
+	Def	1	15	100	32	24	SYSOPCHK.DEF	0	16	
+	Def	3	15	196	32	24	SYSOPCHK.DEF	0	16	
+	Def	2	15	164	32	24	SYSOPCHK.DEF	0	16	
+	Def	4	15	228	32	24	SYSOPCHK.DEF	0	16	
+hint	Text	0	20	24	304	64	MedFont.fnt	7	0	5	8	
+hint	Text	1	55	100	274	24	MedFont.fnt	1	0	4	8	
+hint	Text	3	55	196	274	24	MedFont.fnt	1	0	4	8	
+hint	Text	5	55	260	274	24	MedFont.fnt	1	0	4	8	
+hint	Text	2	55	164	274	24	MedFont.fnt	1	0	4	8	
+hint	Text	4	55	228	274	24	MedFont.fnt	1	0	4	8	
+hint	Text	6	55	292	274	24	MedFont.fnt	1	0	4	8	
+	Text	7	55	132	274	24	MedFont.fnt	1	0	4	8	
+	Def	5	15	260	32	24	SYSOPCHK.DEF	0	16	
+	Def	6	15	292	32	24	SYSOPCHK.DEF	0	16	
+	Def	7	15	132	32	24	SYSOPCHK.DEF	0	16	
+	#

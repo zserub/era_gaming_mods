@@ -334,7 +334,7 @@ ZVSE2
   !!MA:N171/12;     Lava Sharpshooter Shots 12
   !!MA:L171/4;      Lava Sharpshooter Level 5
   !!MA:O171/5;      Lava Sharpshooter > Dungeon
-  *!MA:X171/d|(MON_FLAG_DESTROYS_WALLS);        Lava Sharpshooter Set flags - Destroy Walls - Disabled as it is too OP (shoot until all the walls are destroyed)
+  *!MA:X171/d|(MON_FLAG_DESTROYS_WALLS);        Lava Sharpshooter Set flags - Destroy Walls - Disabled as it's slighty OP, need to balance its price to the same as Artic
   !!MA:C171/6/750;  Lava Sharpshooter Cost 750 (was 800)
   !!MA:A172/18;     Nightmare Att 18
   !!MA:D172/16;     Nightmare Def 16
@@ -423,14 +423,18 @@ ZVSE2
 
 
 ; Boost the speed for devils so they can teleport to anywhere (without affecting the battle queue but update grid)
-!?FU(OnBeforeBattleStackTurn_Quit)&i^wog_50_enabled^/-998;
+!?FU(OnBeforeBattleStackTurn_Quit)&i^wog_50_enabled^/-998/i^wog_tacticsIsEnded^;
 !#VA(stack:x);
 
 !!BM(stack):T?(type:y);
 
 !!if|(type)=(MON_DEVIL)/(type)=(MON_ARCH_DEVIL)/(type)=(MON_HELL_BARON);
-  !!BM(stack):Sd30;
-  !!VRi^wog_50_devilStackPlusOne^:S(stack) +1;
+  !!BM(stack):S?(speed:y);
+
+  !!if&(speed)<30;
+    !!BM(stack):Sd30;
+    !!VRi^wog_50_devilStackPlusOne^:S(stack) +1;
+  !!en;
 !!en;
 
 
@@ -569,14 +573,16 @@ ZVSE2
 
 
 ; Restore the speed of devils
-!?FU(OnBattleActionEnd)&i^wog_50_enabled^/-998; [continue if enabled]
-!!if&i^wog_50_devilStackPlusOne^/i^wog_isBattleStackAction^;
-  !!VRy30:Si^wog_50_devilStackPlusOne^ -1;
-  !!BMy30:S?y31;
-  !!VRy31:-30 F1/(INT_MAX);
-  !!BMy30:Sy31;
-  !!VRi^wog_50_devilStackPlusOne^:S0;
-!!en;
+!?FU(OnBattleActionEnd)&i^wog_50_enabled^/-998/i^wog_50_devilStackPlusOne^/i^wog_isBattleStackAction^; [continue if enabled]
+!!VRy30:Si^wog_50_devilStackPlusOne^ -1;
+!!BMy30:S?y31;
+!!VRy31:-30 F1/(INT_MAX);
+!!BMy30:Sy31;
+!!VRi^wog_50_devilStackPlusOne^:S0;
+
+!?FU(OnSetupBattlefield);
+!!VRi^wog_50_devilStackPlusOne^:S0;
+
 !?FU(OnAfterBattleUniversal);
 !!VRi^wog_50_devilStackPlusOne^:S0;
 

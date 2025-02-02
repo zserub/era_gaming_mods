@@ -1,0 +1,65 @@
+ZVSE2
+
+** HEARTHSTONE Functions
+** Created by Metaphysix
+
+*** Button appearance ***
+!?FU(set_frame);
+!#VA(itemId:x) (currentFrame:x) (dlgObj:x);
+  !!if&(itemId)<0;                      [send error message if itemId null]
+    !!IF:L^itemId=%(itemId) is incorrect! Should be 0 and higher^;
+    !!FU:E;
+  !!en;
+
+  !!FU:A?(numArgs:y);                   [get the number of PASSED arguments]
+  !!if&(numArgs)>=(@currentFrame);      [@currentFrame means argument number of var]
+    *!VR(savedV1:y):Sv1;
+    !!if&(dlgObj)=0;
+      !!FU(H3Dlg_GetCurrentDlg):P?(dlgObj);
+    !!en;
+
+    !!SN:E6288816/2/(dlgObj)/(itemId);  [Get item obj]
+
+    !!if&v1>0;
+      !!VR(itemStructure:y):Sv1;        [getItemStruture]
+      !!VR(itemAction:y):S(itemStructure) +52;  [52 is the offset of frame adjuster mem ptr]
+      !!UN:C(itemAction)/4/(currentFrame);      [select new frame]
+    !!en;
+  !!en;
+
+!?FU(change_state);
+!#VA(setFrame:x);
+  !!UN:J8/1/^hs_interface.pac^; !!FU&-1:E;      [load file, exit if failed]
+  !!SN:F^GetButtonID^/^hsbutton^; !!FU&v1<1:E;  [use GetButtonID extfunc to load button data
+  ;                                              into v1 var from button.btn]
+  !!FU(H3Dlg_GetRootDlg):P?(rootDlg:y);         
+  !!FU(H3Dlg_GetCurrentDlg):P?(currentDlg:y);
+  *!IF:L^HS state = %(setFrame)^; [debug]
+
+  !!if&(rootDlg)=(currentDlg);
+    !!FU(set_frame):Pv1/(setFrame);       [call func and pass v1 and setFrame vars]
+    *!SN:D;  
+  !!el;
+    !!FU(set_frame):Pv1/(setFrame)/(rootDlg);
+  !!en;
+  !!SN:D;   [refresh screen]
+
+!?FU(get_HS_state);
+  !!OW:A-1/?(heroNumber:y);               [get current hero ID]
+  !!IF:W(heroNumber);                     [call to current hero's variables]
+  !!HE(heroNumber):W?(currentmp:y) G?(maxMp:y);       [get current mp, max mp]
+  !!VRw103&(currentmp)<>(maxMp):S0;       [set hero moved bit to avoid looping]
+  !!VR(stateFrame:y);
+  !!VR(stateFrame)&w102>0:S1;             [next day with casted HS = charged]
+  !!VR(stateFrame)&w102=i^timerDay^:S3;   [already started HS in that turn = casting]
+  !!if&w102=0;
+    !!VR(stateFrame)&(currentmp)<>(maxMp):S2;      [can't use HS]
+    !!VR(stateFrame)&(currentmp)=(maxMp):S0;       [HS ready to start]
+  !!en;
+
+  *!IF:L^HS state = %(stateFrame)^; [debug]
+  !!FU(change_state):P(stateFrame);
+
+!?FU(CreateERMHook);
+!#VA(setHook:x);
+  !!SN:E(setHook)/1/4292703/(OnSetActiveHero);  [create new hook for hero update]

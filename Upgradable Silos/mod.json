@@ -1,0 +1,35 @@
+{
+	"caption": {
+		"Cn_Simp": "",
+		"en_US": "Upgradable Silos",
+		"ru_RU": "Улучшаемое хранилище ресурсов"
+	},
+	"description": {
+		"full": {
+			"Cn_Simp": "",
+			"en_US": "ReadMe.txt",
+			"ru_RU": "ReadMe_rus.txt"
+		},
+		"short": {
+			"Cn_Simp": "",
+			"en_US": "Upgradable silos\r\nAuthor: Valery\r\n28/4/2015\r\nEach town silo produces 1 ore & 1 wood + 1 of the special resource asked for level 7 creature\r\nEach silo can be upgraded every week, and will produce +1 of the special resource\r\nEach silo can be right or left clicked for different hints.",
+			"ru_RU": ""
+		}
+	},
+	"author": "daemon_n, Valery",
+	"homepage": "",
+	"icon": {
+		"file": "silo.ico",
+		"index": 0
+	},
+	"mod_version": "2.0",
+	"priority": 0,
+	"compatibility": {
+		"class": "default",
+		"entries": {}
+	},
+	"platform": "era",
+	"info_version": "2.0",
+	"plugins": {},
+	"category": "cheats"
+}

@@ -1,0 +1,38 @@
+{
+	"caption": {
+		"Cn_Simp": "更多战场背景",
+		"en_US": "More Battlefields",
+		"ru_RU": "Больше полей битв",
+		"ua_UA": ""
+	},
+	"description": {
+		"full": {
+			"Cn_Simp": "readme_chn.txt",
+			"en_US": "readme.txt",
+			"ru_RU": "readme_rus.txt",
+			"ua_UA": ""
+		},
+		"short": {
+			"Cn_Simp": "",
+			"en_US": "",
+			"ru_RU": "",
+			"ua_UA": ""
+		}
+	},
+	"author": "Archer30, Morn",
+	"homepage": "https://www.h3wog.com/forum.php?mod=viewthread&tid=78703",
+	"icon": {
+		"file": "Morns Labetha.ico",
+		"index": 0
+	},
+	"mod_version": "1.0",
+	"priority": 0,
+	"compatibility": {
+		"class": "default",
+		"entries": {}
+	},
+	"platform": "era",
+	"info_version": "1.0",
+	"plugins": {},
+	"category": "graphics"
+}

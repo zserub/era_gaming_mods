@@ -100,6 +100,8 @@ Dialogue Box numbers used: 17
 !!VR(spellId)::(SIZEOF_SPELL_STRUCT);
 !!FU(WOG_CHECK_SPELL_BAN):P(spellId)/?(banned:y);
 !!VR(banned:y):&1;
+!!VR(banned)&(spellId)=(SPELL_TITANS_LIGHTNING_BOLT):S(TRUE);
+
 !!if&(banned);
   !!SN:X?t/0;
   !!UN:Cx1/(STRUCT_HOOK_CONTEXT_RET)/4/6022501;
@@ -165,13 +167,14 @@ Dialogue Box numbers used: 17
 !!if&y1=2;
   !!FU(WOG_CHECK_SPELL_BAN):Py2/?y30;
 
-  !!if&y30>0;
-    !!FU7779:Py2; [Check level of banned spell: y-96]
+  !!if|y30=1/y30=3;                     [Replace spell if the spell is banned in wog options]
+    !!FU7779:Py2;                       [Check level of banned spell: y-96]
+
     !!FU(WOG_GENERATE_SPELL):Py-96/y-96/0/0/1/1/y2; [Generate new non-banned spell of same level: y-99]
 
     !!if&y-99<>(NO_SPELL);
       !!VRy5:Sy-99 |1024;                  [Add new non-banned spell of same level: y5]
-      !!SCv2/v3/v4&y3=1/y-99>=0:T2 Ly5;    [Give Scholar new Spell unless all are banned (y5)]
+      !!SCv2/v3/v4&y-99>=0:T2 Ly5;    [Give Scholar new Spell unless all are banned (y5)]
     !!el;
       [If all spells of same level banned (y-99=-1), give a skill instead]
       !!VRy4:S0 R27; [Random # from 1 to 27 for Secondary Skill replacement (y4)]
@@ -278,14 +281,16 @@ Dialogue Box numbers used: 17
 !#UN:P146/?v1; [Check if Ban from Mage Guilds option is selected]
 !#FU10802&v1=1:P; [Call function to ban selected spells]
 
-!#UN:P148/?v1; [Check if Ban from Scholars option is selected]
-!#FU10805&v1=1:P; [Call function to ban selected spells]
-
-!#UN:P150/?v1; [Check if Ban from Spell Scrolls option is selected]
-!#FU10809&v1=1:P; [Call function to ban selected spells]
-
 !#UN:P151/?v1; [Check if Ban from Heroes starting spells is selected]
 !#FU10811&v1=1:P; [Call function to ban selected spells]
+
+; Execute these later in order to work with the latest map conditions
+!?FU(OnAfterErmInited);
+!!UN:P148/?v1; [Check if Ban from Scholars option is selected]
+!!FU10805&v1=1:P; [Call function to ban selected spells]
+
+!!UN:P150/?v1; [Check if Ban from Spell Scrolls option is selected]
+!!FU10809&v1=1:P; [Call function to ban selected spells]
 
 !?PI;
 !!UN:P147/?v1; [Check if Ban from Spell Shrines option is selected]
@@ -1589,43 +1594,47 @@ ERM Numbers: 228
 
 --------------------------------------------------------------------------------
 
- [Build Twice a Day in Towns for Human Players]
- [AI can't build twice but gets free builds to compensate]
+ [Build Twice a Day in Towns for every player]
+ [AI gets refund on the second building to compensate their outdated strategy of building]
+
+!#UN:P228/?(wogOption:y);
+!#VRi^wog_228_aiRefund_enabled^&(wogOption):S(TRUE); [Enable AI cheat]
 
 !?FU(OnEveryDay)&i^timerOnce^;
-!!UN:P228/?(twiceOn:y);                 [Check if Build Twice a Day option is enabled]
-!!FU&(twiceOn)<>(TRUE):E;               [Exit if option not enabled]
+!!UN:P228/?(wogOption:y);               [Check if Build Twice a Day option is enabled]
+!!FU&(wogOption)<>(TRUE):E;             [Exit if option not enabled]
 
 ; Create array on the first day
+; The array store how many times of buildings in a day for every town
 !!if&i^timerDay^=1;
-  !!FU(NewIntArray):P48/?i^wog_228_buildingBuilt^/(M_STORED);
+  !!FU(NewIntArray):P48/?i^wog_228_townBuildingBuilt^/(M_STORED);
 ; Reset array from the second day
 !!el;
   !!re i/0/47;
-    !!SN:Mi^wog_228_buildingBuilt^/i/0;
+    !!SN:Mi^wog_228_townBuildingBuilt^/i/0;
   !!en;
 !!en;
 
-!?FU(OnAfterBuildTownBuilding)&i^wog_228_buildingBuilt^;
+!?FU(OnAfterBuildTownBuilding)&i^wog_228_townBuildingBuilt^;
 !#VA(townId:x) (buildingId:x);
 
-!!UN:P228/?(twiceOn:y);                 [Check if Build Twice a Day option is enabled]
-!!FU&(twiceOn)<>(TRUE):E;               [Exit if option not enabled]
+!!UN:P228/?(wogOption:y);               [Check if Build Twice a Day option is enabled]
+!!FU&(wogOption)<>(TRUE):E;             [Exit if option not enabled]
 
 ; Check if it was an building event (instead of demolishing)
 !!CA0/(townId):B3/(buildingId);
 !!FU&-1:E;
 
-!!SN:Mi^wog_228_buildingBuilt^/(townId)/?(isBuilt:y);
+!!SN:Mi^wog_228_townBuildingBuilt^/(townId)/?(isBuilt:y);
 
 ; Reset building status if it is the first time building
 !!if&(isBuilt)=0;
   !!CA0/(townId):R(FALSE);
-  !!SN:Mi^wog_228_buildingBuilt^/(townId)/d1;
+  !!SN:Mi^wog_228_townBuildingBuilt^/(townId)/d1;
 ; Gives back resources for AI if it is not the first time building
 ; Depending on difficulty, gives back 20% to 100% of the cost
 ; Only isBuilt=1 triggers resources refund in case 3rd party script building town and results in spoilage
-!!el&(isBuilt)=1;
+!!el&(isBuilt)=1/i^wog_228_aiRefund_enabled^;
   !!CA0/(townId):O?(owner:y);
 
   !!if&(owner)>(NO_OWNER);
@@ -1661,71 +1670,81 @@ Variables used: v3393-v3402
 
 --------------------------------------------------------------------------------
 
-!#UN:P233/?i^wog_233_enabled^; [Check if Quick Combat Battle option is enabled]
+!?FU(WOG_233_Initialization);
+; Disable the option if it is in tutorial
+!!UN:C(GAME_MANAGER)/4/?(gameMgr:y);
+!!UN:C(gameMgr)/128669/1/?(isTutorial:y);
+!!UN&(isTutorial):P233/(FALSE);
+
+!!UN:P233/?i^wog_233_enabled^; [Check if Quick Combat Battle option is enabled]
+
+!#FU(WOG_233_Initialization):P;
+
+!?FU(WOG_CreateERMHook)&i^wog_233_enabled^;
+!#VA(address:x);
+
+!!SN:E(address)/1/4337680/(WOG_233_AI_CastSpell);
+
+!?FU(WOG_233_AI_CastSpell)&i^wog_233_isQuickCombatWithNoSpell^;
+!#VA(hook:x);
+
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EAX)/4/?(activeSide:y);
+!!VR(owner:y):Si^battle_owner_%(activeSide)^;
+
+!!if&i^battle_human_%(activeSide)^;
+  !!SN:X?(var:y)/0;
+  !!UN:C(hook)/(STRUCT_HOOK_CONTEXT_RET)/4/4337852;
+!!en;
 
  [Start of battle trigger]
-!?FU(OnBeforeBattleUniversal)&(ERM_FLAG_IS_HUMAN)/i^wog_233_enabled^;
-!!BA:O?y-2/?y-3; [Attacking hero owner: y-2, Defending hero owner: y-3]
-!!OW:Iy-2/?y-4; [Attacking hero Human (0) or AI (1): y-4]
-!!OW:Iy-3/?y-5; [Defending hero Human (0) or AI (1): y-5]
-!!BA:E?y-6; [Type of battle (0 if runs at this PC and not network battle): y-6]
-!!VRy-6&y-4=1/y-5=1:S1; [If both heroes are AI, set y-6 to 1: y-6]
-!!FU(WOG_233_Main)&y-6=0:P; [Call main function if not network and at least one human]
+!?FU(OnBeforeBattleUniversal_Quit)&i^battle_humanOnly^=(FALSE)/i^battle_isNetwork^=(FALSE)/i^battle_aiOnly^=(FALSE)/i^wog_233_enabled^;
+!!BA:E?(stateOfBattle:y); [Type of battle (0 if runs at this PC and not network battle): (stateOfBattle)]
+!!FU&(stateOfBattle)<>0:E;
 
- [Main Quick Combat Battle option function]
-!?FU(WOG_233_Main);
-!!BA:Q?v3401; [Store state of main Quick Combat option in v3401]
-!!VRy1&y-4=0:Sy-2; [Set human hero owner, if attacker: y1]
-!!VRy1&y-4=1:Sy-3; [Set human hero owner, if defender: y1]
+!!VRi^wog_233_isQuickCombatWithNoSpell^:S(FALSE);
+!!BA:Q?(quickCombatStatus:y); [Store state of main Quick Combat option in i^wog_233_quickCombatStatusPlusOne^]
+!!VRi^wog_233_quickCombatStatusPlusOne^:S(quickCombatStatus) +1;
 
-!!VRy2:S3393 +y1; [Index for v variable storing this player's last selected option: y2]
-!!VRy3:Svy2; [Last selected option: vy2 (v3393-v3400)]
-!!VRy3&y3=0:S1; [If no option was selected, default to option 1]
+; Set human player
+!!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
+  !!if&i^battle_human_%i^;
+    !!VR(humanPlayer:y):Si^battle_owner_%i^;
+
+    !!br;
+  !!en;
+!!en;
+
+!!VR(vInd:y):S3393 +(humanPlayer); [Index for v variable storing this player's last selected option: y2]
+!!VR(selectedOption:y):Sv(vInd) F1/(INT_MAX); [Last selected option: v(vInd) (v3393-v3400). If no option was selected, default to option 1]
 
  [** Check if Quick Combat Battle messages are disabled **]
-!!VRy4:Sy1 +1; [Add 1 to y1: y4]
-!!FU(WOG_CALCULATE_BIT_VALUE):Py4/?y-100; [Convert to bit number: y-100]
-!!VRy5:Sv3324; [Set y5 to v3324]
-!!VRy5:&y-100; [Check if message is disabled for current player: y5]
- [** If y5=y-100, messages are disabled for current player **]
+!!VR(playerPlusOne:y):S(humanPlayer) +1; [Add 1 to (humanPlayer): y4]
+!!FU(WOG_CALCULATE_BIT_VALUE):P(playerPlusOne)/?(playerBit:y); [Convert to bit number: (playerBit)]
+!!VR(msgIsDisabled:y):Sv3324 &(playerBit); [Check if message is disabled for current player: y5]
+ [** If y5=(playerBit), messages are disabled for current player **]
 
 !!VRz-1:Sz125064;
 !!VRz-2:Sz125065;
 !!VRz-3:Sz125066;
 !!VRz-4:Sz125067;
 !!VRv1:S0; [Initialize v1 to 0]
-!!BA:H0/?y6 H1/?y7; [Attacking hero number: y6, Defending hero number: y7]
-!!VRy8&y-4=0:Sy6; [Set human hero number, if attacker: y8]
-!!VRy8&y-4=1:Sy7; [Set human hero number, if defender: y8]
-!!VRz-4&y8=-2:S^^; [No "no mana" option if no defending human hero]
-!!IF&y5<>y-100:G1/1/y3/-1/-2/-3/-4/0/0/0/0/0/0/0/0/0; [Display option list unless disabled]
-!!VRvy2&y5<>y-100:Sv1; [Store selected option in vy2 (v3393-v3400) unless disabled]
-!!VRv1&y5=y-100:Sy3; [If message disabled, use last selected option: v1]
-!!VRv1&v1=4/y8=-2:S2; [Set to regular quick combat instead of no defending human hero]
+
+!!if&(msgIsDisabled)=(FALSE);
+  !!IF:G1/1/(selectedOption)/-1/-2/-3/-4/0/0/0/0/0/0/0/0/0; [Display option list unless disabled]
+  !!VRv(vInd):Sv1; [Store selected option in v(vInd) (v3393-v3400) unless disabled]
+!!el;
+  !!VRv1:S(selectedOption); [If message disabled, use last selected option: v1]
+!!en;
+
 !!BA&v1=1:Q0; [No quick combat]
 !!BA|v1=2/v1=4:Q1; [Quick combat]
 
-!!HEy8&v1=4:I?v3402/1; [Store hero's spell points: v3402]
-!!HEy8&v1=4:I0/1; [Set hero's spell points to 0]
+!!VRi^wog_233_isQuickCombatWithNoSpell^&v1=4:S(TRUE);
 
  [End of battle trigger]
-!?FU(OnAfterBattleUniversal)&(ERM_FLAG_IS_HUMAN)/i^wog_233_enabled^;
-!!BA:O?y-2/?y-3; [Attacking hero owner: y-2, Defending hero owner: y-3]
-!!OW:Iy-2/?y-4; [Attacking hero Human (0) or AI (1): y-4]
-!!OW:Iy-3/?y-5; [Defending hero Human (0) or AI (1): y-5]
-!!BA:E?y-6; [Type of battle (0 if runs at this PC and not network battle): y-6]
-!!VRy-6&y-4=1/y-5=1:S1; [If both heroes are AI, set y-6 to 1: y-6]
-!!FU&y-6<>0:E; [Exit if network/AI only battle]
-
-!!BA:Qv3401; [Restore state of Quick Combat option: v3401]
-!!VRy-7&y-4=0:Sy-2; [Set human hero owner, if attacker: y-7]
-!!VRy-7&y-4=1:Sy-3; [Set human hero owner, if defender: y-7]
-!!VRy-8:S3393 +y-7; [Index for v variable storing this player's last selected option: y-8]
-
-!!BA:H0/?y-9 H1/?y-10; [Attacking hero number: y-9, Defending hero number: y-10]
-!!VRy-11&y-4=0:Sy-9; [Set human hero number, if attacker: y-11]
-!!VRy-11&y-4=1:Sy-10; [Set human hero number, if defender: y-11]
-!!HEy-11&vy-8=4/y-11<>-2:Idv3402/1; [Restore hero's spell points: v3402]
+!?FU(OnAfterBattleUniversal)&(ERM_FLAG_IS_HUMAN)/i^wog_233_enabled^/i^wog_233_quickCombatStatusPlusOne^;
+!!VR(quickCombatStatus:y):Si^wog_233_quickCombatStatusPlusOne^ -1;
+!!BA:Q(quickCombatStatus);
 
 --------------------------------------------------------------------------------
 

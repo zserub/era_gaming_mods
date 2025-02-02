@@ -240,15 +240,17 @@ ZVSE2
 !#VA(side:x) (mistBon:x) (resBon:x);
 
 !!HEi^battle_hero_%(side)^:X?(specType:y)/?(specSkill:y);
-!!VR(oppSide:y):S1 X(side);
+
 !!if&(specType:y)=0;
   !!FU(WOG_39_GetSpellBySkill):P(specSkill)/?(spellID:y)/?(isBuf:y);
 
   !!if&(spellID)<>(NO_SPELL);
-    !!FU(WOG_Battle_CanCast):P(side)/(TRUE)/?(result:y);
+    !!FU(WOG_Battle_CanCast):P(side)/(TRUE)/?(result:y)/(TRUE); [Check if it is possible to cast (ignoring whether the hero equips a spell book)]
+
     !!if&(result:y);
-      !!VR(oppSide:y)&(isBuf):S(side);
-      !!FU(WOG_Battle_SetSideSpellEffects):P(side)/(oppSide)/(spellID)/5/(SKILL_EXPERT)/(FALSE);
+      !!VR(targetSide:y):S(side);
+      !!VR(targetSide)&(isBuf)<>(TRUE):X(TRUE);
+      !!FU(WOG_Battle_SetSideSpellEffects):P(side)/(targetSide)/(spellID)/5/(SKILL_EXPERT)/(FALSE);
       !!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
       !!SN:E4625200/(CALLCONV_THISCALL)/(cmbMgr);         [recalc luck and morale]
     !!en;
@@ -266,7 +268,7 @@ ZVSE2
   !!FU(WOG_39_GetCastedSpell):Pi^battle_hero_%(side)^/?(spellID:y)/?(frequency:y);
   !!VRi^wog_39_hero_%(side)_cast_chance^:S(NULL);
   !!if&(spellID)<>(NO_SPELL);
-    !!FU(WOG_Battle_CanCast):P(side)/(TRUE)/?(result:y);
+    !!FU(WOG_Battle_CanCast):P(side)/(TRUE)/?(result:y)/(TRUE);
 
     !!if&(result:y);
       !!VRi^wog_39_hero_%(side)_cast_chance^:S(frequency);
@@ -417,6 +419,8 @@ ZVSE2
 
   !!VR(damage):S(monLvl) +1;
   !!HE(heroId):E?s/?(level:y);
+  !!VR(level):F1/(INT_MAX);             [Fix the value fetched in case it's buggy]
+
   !!VR(attack):S(level) :(damage) *5;*(coef);S(int);
   !!VR(defense):S(attack);*(coef);
 
@@ -433,13 +437,17 @@ ZVSE2
   !!if&(monId)<>(MON_SKELETON)/(monId)<>(MON_VAMPIRE)/(monId)<>(MON_BALLISTA);
     !!UN:Cx1/(STRUCT_HOOK_CONTEXT_ESI)/4/?(monPtr:y) C(monPtr)/4/4/?(monLvl:y);
     !!UN:C(monPtr)/76/4/?(currHp:y);
-    !!UN:C(monPtr)/84/4/?(attack:y) C(monPtr)/88/4/?(defense:y);               [edit min/max damage]
+
+    ; Archer: Here the attack and defense are not set at all. Is that ok?
+    ; Also the native bonuses are not ignored. Is that ok?
+    !!UN:C(monPtr)/84/4/?(attack:y) C(monPtr)/88/4/?(defense:y); [edit min/max damage]
+
     !!FU(WOG_39_Hero_GetSpecMonsterStats):P(heroId)/(monLvl)/?(attack:y)/?(defense:y)/?(damage:y)/?(bonusHp:y);
     !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp)/8/4/?(monId:y);
     !!VR(newHp:e):S(currHp) :100 *(bonusHp);
     !!VR(hp:y):S(newHp);
     !!UN:C(monPtr)/76/4/d(hp); edit hp
-    !!UN:C(monPtr)/92/4/d(damage) C(monPtr)/96/4/d(damage);               [edit min/max damage]
+    !!UN:C(monPtr)/92/4/d(damage) C(monPtr)/96/4/d(damage); [edit min/max damage]
   !!en;
 
 !?FU(WOG_39_GetMonSpecText);

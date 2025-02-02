@@ -4,7 +4,6 @@
 新作弊功能 - 作者：Archer30
 修改器 - 作者：Valery、Archer30
 显示事件 - 作者：Valery、Gamecreator
-ERM命令执行工具 - 作者：贤知有您
 选择战场 - 作者：Valery、Archer30
 特别鸣谢：Jim Vogan、daemon_n、MoP、igrik和Algor
 
@@ -15,7 +14,6 @@ ERM命令执行工具 - 作者：贤知有您
 	“Alt+点击”重复最后执行的操作。
 	“Alt+数字键”快速切换选项。
 按“F6”键使用额外作弊功能。
-按“X”键执行ERM命令。
 
 战场界面热键：
 按“F2”键修改特殊战场地形。

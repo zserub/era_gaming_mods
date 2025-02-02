@@ -1,0 +1,193 @@
+ZVSE2
+
+;Upgradable silos
+;Author: Valery
+;28/4/2015
+;Each town silo produces 1 ore & 1 wood + 1 of the special resource asked for level 7 creature
+;Each silo can be upgraded every week, and will produce +1 of the special resource
+;Each silo can be right or left clicked for different hints.
+;vars used: v2-v10 (quick)
+;rewritten with ERM2.0 by daemon_n
+;08/02/2023
+!#DC(US_DLG_ID) = 1095;
+!#DC(US_GOLD_COST) = 5000;
+!#DC(US_ORE_COST) = 5;
+
+
+*?FU(OnStartOrLoad);
+*!SN:L^EraPlugins\erm_hooker.era^/?y1;
+*!if&y1;
+  *!SN:Ay1/^SetHook^/?y2 Ey2/1/4531039/(us_OnTownPreviewBuild); Ey2/1/5442006/(us_OnTownPreviewBuild);
+*!en;
+4531012
+*?FU(us_OnTownPreviewBuild);
+*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y) C(ebp:y)/-40/4/2;?(currRes:y);
+*!UN:Cx1/(STRUCT_HOOK_CONTEXT_EDI)/4/2;?(ebp:y) C(ebp:y)/-40/4/1;?(currRes:y);
+
+*!IF:L^%^;
+!?FU(us_TownResurceSiloArray);
+!#VA(townType:x) (resType:x) (value:x);
+!!FU:S(@value)/?(argSyntax:y);
+
+!!VR(townOffset:y):S(townType:x) *28;
+
+!!VR(resOffset:y):S(resType:x) *4 +(townOffset:y);
+
+!!if&(argSyntax:y)=(ARG_SYNTAX_GET);
+  !!UN:C6852356/(resOffset)/1/?(value);
+!!el;
+  !!UN:C6852356/(resOffset)/1/(value);
+!!en;
+
+!?FU(OnGameLeave);
+*!UN:C4531039/2/1/2 C5442006/2/1/2;?y22;
+
+!?FU(OnGameEnter);
+*!SN:M(M_AUTO_ID)/63/(M_INT)/(M_TEMP)/?i^us_originalSilosValues^;
+*!UN:C4531039/2/1/3 C5442006/2/1/3;?y22;
+*!re i/0/1;(end_value);
+  *!UN:C4531214/2/(OPCODE_NOP_2);
+*!en;
+*!IF:L^%y22^;
+!!re i/0/(TOWN_LAST_WOG);
+  !!UN:Ti/(MON_MAX_LEVEL)/1/?(monId:y);
+  !!VR(resToAdd:y):S(NO_RES);
+  !!re j/0/(RES_LAST_SOD)/1/-1;
+    !!MA:C(monId)/j/?(resCost:y);
+    !!if&(resCost:y);
+      !!VR(resToAdd):Sj;
+      !!VRi^us_special_res_%i^:Sj;
+    !!en;
+    !!FU(us_TownResurceSiloArray):Pi/j/0;?(value:y);
+  !!en;
+  *!FU(us_TownResurceSiloArray)&(resToAdd:y)<>(NO_RES):Pi/(resToAdd:y)/1;?(value:y);
+  !!FU(us_TownResurceSiloArray):Pi/(RES_WOOD)/1 Pi/(RES_ORE)/1;?(value:y);
+!!en;
+
+!?FU(OnEveryDay)&i^timerDay^>1/i^timerOnce^;
+!!re i/0/(PLAYER_LAST);
+  !!OW:Wi/?(towns:y);
+  !!if&(towns);
+    !!re j/0/(towns)/1/-1;
+      !!OW:Wi/j/?(townId:y);
+      !!if&i^us_bonus_town_%(townId)^;
+        !!CA0/(townId):T?t;
+        !!OW:Ri/i^us_special_res_%t^/di^us_bonus_town_%(townId)^;
+      !!en;
+    !!en;
+  !!en;
+!!en;
+;reset building this week
+!!if&i^timerWeekDay^=1;
+  !!UN:U(OBJ_TOWN)/-1/?(towns:y);
+  !!re i/1/(towns);
+    !!UN:U(OBJ_TOWN)/-1/i/2;                      [v2 v3 v4 coordinates]
+    !!CA2:U?(townId:y);
+    !!VRi^us_upgraded_town_%(townId)^:S(FALSE);
+  !!en;
+!!en;
+
+!?FU(us_DlgSetColor);
+!#VA(dlgId:x) (setColor:x);
+  !!SN:E7510739/1/(dlgId);
+  !!UN:Cv1/4/?(dlgObj:y);
+  !!UN:C(dlgObj)/76/4/?(backGroundId:y);
+  !!SN:E6288384/2/(dlgObj)/512/13/(backGroundId)/(setColor);
+!?CM1; town screen
+*?FU(OnTownMouseClick)&i^mouse_item^=15;
+!!FU(gem_DlgReload):P^silo.txt^;
+
+!?FU(us_DlgPrepare);
+!#VA(dlgId:x) (playerId:x);
+
+!!CA(CURRENT_TOWN):T?(townType:y) U?(townId:y);
+
+!!DL(dlgId):N^silo.txt^;
+!!FU(us_DlgSetColor):P(dlgId)/(playerId);
+!!FU(NewStrArray):P?(townTypes:y);
+!!FU(Array_Push):P(townTypes)/^cstl^/^ramp^/^towr^/^infr^/^necr^/^dung^/^strn^/^fort^/^elem^;
+!!SN:M(townTypes)/(townType)/?(suffix:z);
+!!VR(defName:z):S^hall%(suffix).def^;
+
+!!UN:C6968420/4/?(siloNamePtr:y);
+!!SN:B(siloNamePtr:y)/d/?(siloName:z);
+!!DL(dlgId):A1/(DLG_CMD_SET_TEXT)/(siloName:z)/1;
+!!DL(dlgId):A4/(DLG_CMD_SET_DEF)/(defName:z)/1;
+!!DL(dlgId):A8/(DLG_CMD_SET_DEF_FRAME)/i^us_special_res_%(townType)^/1;
+!!VR(specIncome:y):Si^us_bonus_town_%(townId)^ +1;
+!!DL(dlgId):A9/(DLG_CMD_SET_TEXT)/^%(specIncome)^/1;
+
+!?FU(OnTownMouseClick)&i^mouse_item^=15
+/i^mouse_action^<>(MOUSE_EXIT_BTN_LMB_RELEASED)
+/i^mouse_action^<>(MOUSE_LMB_RELEASED);
+
+
+!!CA-1:O?o U?(townId:y); get town position and type
+!!OW:C?y99/?(clickedPlayer:y);
+
+!!FU(us_DlgPrepare):P(US_DLG_ID)/(clickedPlayer:y);
+
+!!if&i^mouse_action^=(MOUSE_LMB_PRESSED);
+  !!if&o<>(clickedPlayer:y);
+    !!VR(text:z):S^%T(us.no_owner)^;
+    !!DL(US_DLG_ID):E30722/0;
+  !!el&i^us_upgraded_town_%(townId)^; already upgraded
+    !!VR(text:z):S^%T(us.upgraded)^;
+    !!DL(US_DLG_ID):E30722/0;
+  !!el;
+    !!VR(text:z):S^%T(us.question)^;
+  !!en;
+  *!IF:L^%(text)^;
+  !!DL(US_DLG_ID):A5/3/(text:z)/1; set question
+
+  !!DL(US_DLG_ID):S1;
+  !!SN:D;
+
+!!el;
+  !!DL(US_DLG_ID):E30721/0 E30722/0;
+  !!DL(US_DLG_ID):A5/3/^^/1; set question
+  !!FU(DL_ShowPopup):P(US_DLG_ID);
+!!en;
+!!CM:R0;
+!?DL&v998=(US_DLG_ID)/v999>=13/v999<=15/v1000=(MOUSE_LMB_RELEASED); click on upgrade button
+!!FU(H3Dlg_GetCurrentDlg):P?(dlg:y);
+!!SN:E6288816/2/(dlg)/8;
+!!UN:Cv1/52/4/?(currentFrame:y);
+*!FU(gem_DlgItemPosition):P;
+!!VR(frameId:y):Sv999 - 14 +(currentFrame);
+*!IF:M^%(frameId)^;
+
+!!if&(frameId:y)<0;
+  !!VR(frameId):S7;
+!!el&(frameId)>7;
+  !!VR(frameId):S0;
+!!en;
+
+!!DL(US_DLG_ID):A8/(DLG_CMD_SET_DEF_FRAME)/(frameId:y)/1; set question
+
+
+
+!?DL&v998=(US_DLG_ID)/v999=8/v1000=(MOUSE_LMB_RELEASED); click on upgrade button
+*#VA(resources[14]:y);
+!!FU(NewIntArray):P14/1/?(resources:y);
+!!re i/0/13/2;
+  !!VRj:Si :2;
+  !!SN:M(resources)/i/j;
+!!en;
+!!FU(PrepareMultiPicDialog):P(resources);
+!!IF:N(MSG_TYPE_CHOOSE_PIC_OR_CANCEL)/^123^;
+
+!?DL&v998=(US_DLG_ID)/v999=30722/v1000=(MOUSE_LMB_RELEASED); click on upgrade button
+!!OW:R-1/(RES_GOLD)/?y11 R-1/(RES_ORE)/?y12; get resources
+!!if&y11>=(US_GOLD_COST)/y12>=(US_ORE_COST);
+  !!OW:R-1/(RES_GOLD)/d-(US_GOLD_COST) R-1/(RES_ORE)/d-(US_ORE_COST);
+  !!CA-1:U?(townId:y);
+  !!VRi^us_bonus_town_%(townId)^:+1;
+  !!VRi^us_upgraded_town_%(townId)^:S(TRUE);
+  !!DL:C1;
+!!el;
+  !!IF:Q1/(RES_GOLD)/(US_GOLD_COST)/(RES_ORE)/(US_ORE_COST)/(MSG_TYPE_MES)/^%T(us.no_resources)^;
+!!en;
+
+!?DL&v998=(US_DLG_ID)/v999=30721/v1000=(MOUSE_LMB_RELEASED); close dialog in cancel button is pressed
+!!DL:C1;

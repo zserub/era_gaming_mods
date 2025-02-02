@@ -8,9 +8,8 @@ ZVSE2
 ** September 16, 2004 to correct some y variables that should have been y- variables.
 ** Special thanks to Fnord for help with bug fixing and script maintenance
 ** Artifact descriptions transferred to script75 on Jul. 18. 2004 by Hermann the Weird
-** Updated Nov 2022 by Archer30
 ** Updated Jan 2023 by daemon_n with perfect optimization and nativization kek 
-
+** Updated Feb 2024 by Archer30
 
 
 ** Improves many weak artifacts
@@ -62,7 +61,7 @@ ZVSE2
 !#UN:P219/?i^wog_219_enabled^; [Check if Enhanced Commander Artifacts is enabled in WoGify Options]
 
 !?FU(WOG_CreateERMHook)&i^wog_71_enabled^;
-!!SN:Ex1/1/4288964/(WOG_71_OnMonsterClickDiplomacy); [hooks for the artifacts decreasing mon gression]
+!!SN:Ex1/1/4288967/(WOG_71_OnMonsterClickDiplomacy); [hooks for the artifacts decreasing mon gression]
 !!SN:Ex1/1/4879500/(WOG_71_OnMonsterAttackDiplomacy);
 !!SN:Ex1/1/4355710/(WOG_71_OnGetArmyDiplomacyValue);
 
@@ -142,6 +141,8 @@ ZVSE2
 !?FU(OnAfterBattleUniversal);
 !!VRi^wog_219_inCombat^:S(FALSE);
 
+; WARNING: using (CURRENT_HERO) isn't ideal as it conflict with HD backpack
+; Report: https://discord.com/channels/665742159307341827/1246447170622587011
 !?FU(OnEquipArt)&v998>=(ART_AXE_OF_SMASHING)/v998<=(ART_SLAVAS_RING_OF_POWER)/i^wog_219_enabled^;
 !!FU(WOG_219_ArtProc):Pv998/1;
 
@@ -164,6 +165,7 @@ ZVSE2
 
 !!HE(CURRENT_HERO):Fd(pSkills[0])/d(pSkills[1])/d(pSkills[2])/d(pSkills[3]) S(sSkill)/?(lvl:y);
 !!FU&i^wog_219_inCombat^:E;
+
 !!if&(value)>0;
   !!HE(CURRENT_HERO)&(lvl)<(SKILL_EXPERT):S(sSkill)/d1;
 !!el&(lvl:y)>(SKILL_NOT_LEARNED)/(lvl)<(SKILL_EXPERT); [Arcerh30: if the hero granted Expert level SS by equipping the art, he/she granted the SS on Expert level permantely - same as in the original WoG Script]
@@ -244,41 +246,39 @@ ZVSE2
 
 
 !?FU(OnBeforeBattleUniversal)&i^wog_71_enabled^;
-
-
-!!re i/0/i^battle_hero_vs_hero^;
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
   !!VR(bonus:y):S(NULL);
   !!HEi^battle_hero_%i^:A2/(ART_RING_OF_THE_MAGI)/?y-4/?(isRingOfMagi:y);
+
   !!if&(isRingOfMagi:y);
     !!VR(bonus:y):S50;
   !!el;
     !!re j/0/2;
       !!VR(artId:y):Sj +(ART_COLLAR_OF_CONJURING);
       !!HEi^battle_hero_%i^:A2/(artId:y)/?y-4/?(isEqipped:y);
+
       !!if&(isEqipped);
         !!VR(bonusAdd:y):Sj*5 +5;
         !!VR(bonus):+(bonusAdd);
       !!en;
     !!en;
   !!en;
-  !!VRi^wog_71_hero_%i_spell_damage^:S100 +(bonus);
-!!en;
-!?FU(OnMagicBasicResistance)&i^wog_71_enabled^;
 
-!!BG:A?y-3;                                   [get active stack #, action type]
-!!if&y-3=(BATTLE_ACTION_HERO_CAST);
-  !!BG:N?y-1;
-  !!VR(side:y):Sy-1 -20 F0/1; X1;
-  !!if&i^wog_71_hero_%i_spell_damage^>100;
-    !!MR:D?(damage:y);                                         [get spell damage]
-    !!VR(damage):*i^wog_71_hero_%i_spell_damage^ :100;
-    !!MR:D(damage:y);
-  !!en;
+  !!VRi^wog_71_hero_%i_spellDamageBonus^:S(bonus);
+!!en;
+
+!?FU(OnMagicBasicResistance)&i^wog_71_enabled^/i^wog_71_hero_%i(battle_current_side)_spellDamageBonus^>0;
+!!BG:A?(action:y);                      [get active stack #, action type]
+
+!!if&(action)=(BATTLE_ACTION_HERO_CAST);
+  !!MR:D?(basicDmg:y);                  [get spell damage]
+  !!VR(newDmg:y):S(basicDmg) *i^wog_71_hero_%i(battle_current_side)_spellDamageBonus^ :100 +(basicDmg);
+  !!MR&(newDmg)>(basicDmg):D(newDmg);
 !!en;
 
 !?FU(OnAfterBattleUniversal)&i^wog_71_enabled^;
-!!re i/0/i^battle_hero_vs_hero^;
-  !!VRi^wog_71_hero_%i_spell_damage^:S(NULL);
+!!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+  !!VRi^wog_71_hero_%i_spellDamageBonus^:S(NULL);
 !!en;
 
 
@@ -286,7 +286,19 @@ ZVSE2
 
 ** function to handle creature artifacts for a hero who has one
 !?FU(WOG_71_UpgradeMonsterWithArtifact);                          x2=artifact number  x3=creature type
-!#VA(hero:x) (artifact:x) (monster:x);
+!#VA(hero:x) (art:x) (monster:x);
+
+!!VR(index:y)&(art)=(ART_CENTAUR_AXE):S0;
+!!VR(index)&(art)=(ART_SHIELD_OF_THE_DWARVEN_LORDS):S1;
+!!VR(index)&(art)=(ART_HELM_OF_THE_ALABASTER_UNICORN):S2;
+!!VR(index)&(art)=(ART_BREASTPLATE_OF_PETRIFIED_WOOD):S3;
+!!VR(index)&(art)=(ART_AMULET_OF_THE_UNDERTAKER):S4;
+!!VR(index)&(art)=(ART_VAMPIRES_COWL):S5;
+!!VR(index)&(art)=(ART_DEAD_MANS_BOOTS):S6;
+
+!!VR(bit:y):S1 Sd<<(index);
+!!VR(isDisabled:y):Si^wog_71_disabledUpgrades_%(hero)^ &(bit);
+!!FU&(isDisabled):E;
 
 !!VR(monCount:y):S0;
 
@@ -297,14 +309,14 @@ ZVSE2
 
 !!if&(monCount)>0;
   !!if&1000;
-    !!HE(hero):B0/?(heroName:z);                  [get hero name]
+    !!HE(hero):B0/?(heroName:z);        [get hero name]
     !!HE(hero):R2/?(gender:y);          [get hero sex]
     !!SN:T^wog.whose%(gender)^/?(whose:z);     
-    !!SN:H^art^/(artifact)/0/?(artName:z);       [get artifact name]
+    !!SN:H^art^/(art)/0/?(artName:z);   [get artifact name]
     !!VR(isPlural:y):S(monCount) -1 B;  [get creature name]
     !!SN:H^monname^/(monster)/(isPlural)/?(monName:z);
     !!SN:T^wog.71.upgrade^/?(msg:z)/^monName^/(monName:z)/^heroName^/(heroName)/^whose^/(whose)/^artName^/(artName);
-    !!IF:Q1/(PIC_TYPE_ART)/(artifact)/(MSG_TYPE_MES)/(msg:z);
+    !!IF:Q1/(PIC_TYPE_ART)/(art)/(MSG_TYPE_MES)/(msg:z);
   !!en;
 
   !!VR(upgMon:y):S(monster) +1;         [set for upgrade]
@@ -318,15 +330,18 @@ ZVSE2
 !?FU(OnSetupBattlefield)&i^wog_71_enabled^;
 
 !#VA(arts[10]:y) (spells[10]:y) (sides[10]:y);
+
 !!VR(arts[0]):C(ART_PENDANT_OF_DISPASSION)/(ART_PENDANT_OF_SECOND_SIGHT)/(ART_PENDANT_OF_HOLINESS)/(ART_PENDANT_OF_FREE_WILL)/(ART_PENDANT_OF_TOTAL_RECALL)/
 (ART_ORB_OF_VULNERABILITY)/(ART_ORB_OF_THE_FIRMAMENT)/(ART_ORB_OF_SILT)/(ART_ORB_OF_TEMPESTUOUS_FIRE)/(ART_ORB_OF_DRIVING_RAIN);
 !!VR(spells[0]):C(SPELL_BLOODLUST)/(SPELL_AIR_SHIELD)/(SPELL_BLESS)/(SPELL_STONE_SKIN)/(SPELL_PRECISION)/
 73/(SPELL_PROTECTION_FROM_AIR)/(SPELL_PROTECTION_FROM_EARTH)/(SPELL_PROTECTION_FROM_FIRE)/(SPELL_PROTECTION_FROM_WATER);
 !!VR(sides[0]):C0/0/0/0/0/1/0/0/0/0;
+
 !!re i/0/i^battle_hero_vs_hero^;
   !!re j/0/(arts[SIZE])/1/-1;
-    !!HEi^battle_hero_%i^:A2/(arts[j])/?y99/?(isEqipped:y);
-    !!if&(isEqipped);|i;
+    !!FU(WOG_71_CheckIfHeroHasArt):Pi^battle_hero_%i^/(arts[j])/?(equipped:y); [For mod compatibility, here we use a function]
+
+    !!if&(equipped);
       !!VR(targetSide:y):Si X(sides[j]);
       !!FU(WOG_Battle_SetSideSpellEffects):Pi/(targetSide)/(spells[j])/50/(SKILL_NOT_LEARNED)/(FALSE);
     !!en;
@@ -334,6 +349,12 @@ ZVSE2
 !!en;
 
 !!FU(WOG_CleanUpSpells):P73/(WOG_StackIsLiving);
+
+; Function for mod compatibility
+!?FU(WOG_71_CheckIfHeroHasArt);
+!#VA(hero:x) (art:x) (result:x);
+
+!!HE(hero):A2/(art)/?t/?(result);
 
 !?FU(WOG_StackIsLiving);
 !#VA(stackId:x) (result:x);
@@ -438,4 +459,93 @@ ZVSE2
   !!en;
 
   !!UN:Cx1/(STRUCT_HOOK_CONTEXT_EAX)/4/(value);
+!!en;
+
+// Enable/Disable artifact creature upgrades on Monday
+!?FU(WOG_OnResetHero);
+!#VA(hero:x);
+
+!!UN:P71/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;
+
+!!VRi^wog_71_disabledUpgrades_%(hero)^:S0;
+
+!?FU(OnHeroScreenMouseClick)&i^mouse_action^=(MOUSE_RMB_PRESSED)/999;
+!!UN:P71/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;
+
+; Exit if the hero does not belong to the interacting player
+!!OW:C?(player:y)/?(interactPlayer:y);  [Get the player who's clicking the mouse button]
+!!HE(CURRENT_HERO):O?(owner:y);
+!!FU&(interactPlayer)<>(owner):E;
+
+!!VR(slot:y):S(NO_ART_SLOT);
+!!VR(item:y):Si^mouse_item^;
+
+!!if&(item)>=2/(item)<=14|(item)=20;
+  !!VR(slot):S(item) -2;
+!!en;
+
+!!FU&(slot)=(NO_ART_SLOT):E;
+
+!!HE(CURRENT_HERO):N?(hero:y);
+!!FU(WOG_71_PrepareToDisableArt):P(hero)/(slot);
+
+!?FU(OnHeroesMeetScreenMouseClick)&i^mouse_action^=(MOUSE_RMB_PRESSED)/999;
+!!UN:P71/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;
+
+!!VR(hero:y):S(NO_HERO);
+!!VR(item:y):Si^mouse_item^;
+
+!!if&(item)>=27/(item)<=39|(item)=45;
+  !!VR(slot:y):S(item) -27;
+  !!CM:H?(hero)/?(otherHero:y);
+!!el&(item)>=46/(item)<=58|(item)=64;
+  !!VR(slot):S(item) -46;
+  !!CM:H?(otherHero)/?(hero);
+!!en;
+
+!!FU&(hero)=(NO_HERO):E;
+
+!!FU(WOG_71_PrepareToDisableArt):P(hero)/(slot);
+
+!?FU(WOG_71_PrepareToDisableArt);
+!#VA(hero:x) (slot:x);
+
+!!HE(hero):A1/?(art:y)/(slot);
+
+; This script works for all 7 artifact upgrades, but here we enable only Dead Man's Boots 
+; as it seems to be the only case we want to disable (cause raising Skeletons are sometimes stronger)
+; Note that right-click menu here could conflict with the interaction of combination artifacts
+; It is allowed only for Dead man's boots also for this reason
+*!if|(art)=(ART_CENTAUR_AXE)/(art)=(ART_SHIELD_OF_THE_DWARVEN_LORDS)/(art)=(ART_HELM_OF_THE_ALABASTER_UNICORN)/(art)=(ART_BREASTPLATE_OF_PETRIFIED_WOOD)
+  /(art)=(ART_AMULET_OF_THE_UNDERTAKER)/(art)=(ART_VAMPIRES_COWL)/(art)=(ART_DEAD_MANS_BOOTS);
+!!if&(art)=(ART_DEAD_MANS_BOOTS);
+
+  !!CM:R0;
+
+  !!VR(index:y)&(art)=(ART_CENTAUR_AXE):S0;
+  !!VR(index)&(art)=(ART_SHIELD_OF_THE_DWARVEN_LORDS):S1;
+  !!VR(index)&(art)=(ART_HELM_OF_THE_ALABASTER_UNICORN):S2;
+  !!VR(index)&(art)=(ART_BREASTPLATE_OF_PETRIFIED_WOOD):S3;
+  !!VR(index)&(art)=(ART_AMULET_OF_THE_UNDERTAKER):S4;
+  !!VR(index)&(art)=(ART_VAMPIRES_COWL):S5;
+  !!VR(index)&(art)=(ART_DEAD_MANS_BOOTS):S6;
+
+  !!VR(bit:y):S1 Sd<<(index);
+  !!VR(isDisabled:y):Si^wog_71_disabledUpgrades_%(hero)^ &(bit);
+
+  !!if&(isDisabled)=(FALSE);
+    !!VR(stat:z):S^%T(wog.102.on)^;
+    !!VR(rstat:z):S^%T(wog.102.off)^;
+  !!el;
+    !!VR(stat):S^%T(wog.102.off)^;
+    !!VR(rstat):S^%T(wog.102.on)^;
+  !!en;
+
+  !!SN:H^art^/(art)/1/?(artDesc:z) T^wog.71.switch^/?(msg:z)/^art_name^/(artDesc)/^stat^/(stat)/^rstat^/(rstat);
+
+  !!IF:Q1/(PIC_TYPE_ART)/(art)/(MSG_TYPE_QUESTION)/(msg);
+  !!VRi^wog_71_disabledUpgrades_%(hero)^&1:X(bit);
 !!en;

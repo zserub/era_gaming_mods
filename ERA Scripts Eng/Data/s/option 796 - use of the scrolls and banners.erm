@@ -87,11 +87,17 @@ ZVSE2
 !?FU(OnAfterHeroGainLevel)&i^es_796_during_hero_screen^;
 !!VRi^es_796_during_hero_screen^:S(FALSE);
 
+; The trigger is placed in 1000 es - stdlib.erm
 !?FU(ES_796_ManageHeroScreenMouseAction);
 !!FU&i^mouse_action^<>(MOUSE_LMB_PRESSED)/i^mouse_action^<>(MOUSE_RMB_PRESSED):E;
 
 !!UN:P796/?(wogOption:y);               [проверяем включена ли опция 796]
 !!FU&(wogOption)<>(TRUE):E;             [выход если опция не включена]
+
+; Exit if the hero does not belong to the interacting player
+!!OW:C?(player:y)/?(interactPlayer:y);  [Get the player who's clicking the mouse button]
+!!HE(CURRENT_HERO):O?(owner:y);
+!!FU&(interactPlayer)<>(owner):E;
 
 !!VR(slot:y):S(NO_ART_SLOT);
 !!VR(item:y):Si^mouse_item^;
@@ -107,6 +113,7 @@ ZVSE2
 !!HE(CURRENT_HERO):N?(hero:y);
 !!FU(ES_796_PrepareToSacrificeArt):P(hero)/(slot);
 
+; The trigger is placed in 1000 es - stdlib.erm
 !?FU(ES_796_ManageHeroesMeetingScreenMouseAction);
 !!FU&i^mouse_action^<>(MOUSE_LMB_PRESSED)/i^mouse_action^<>(MOUSE_RMB_PRESSED):E;
 

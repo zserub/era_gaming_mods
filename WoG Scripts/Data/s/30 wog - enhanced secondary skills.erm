@@ -23,7 +23,7 @@ ZVSE2
 **      Basic: adds 100% damage, Advanced: adds 200% damage, Expert: adds 300% damage
 ***  Eagle Eye  ***
 **      Grants the ability to counter a beneficial spell cast by the enemy.
-**      Drains 8 spell points from caster (7 with water magic skill).
+**      The countered spell would take the same spell points from the caster.
 **      Basic: 10%, Advanced: 20%, Expert: 30%
 **      Bird of Perception, Stoic Watchman, & Emblem of Cognizance increase the chance.
 **      New combination artifact - (above three) adds 20% to chance to counter enemy hero's spells
@@ -108,7 +108,10 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 !#VA(address:x);
 
 ; Artillery 
-!!SN&i^wog_201_enabled^:E(address)/1/4607915/(WOG_201_KillWithArtillery); hook before artifact cast
+!!if&i^wog_201_enabled^;
+  !!SN:E(address)/1/4607915/(WOG_201_KillWithArtillery); hook before artifact cast
+  !!SN:E(address)/1/4681149/(WOG_201_OnBeforeBattleResult);
+!!en;
 ; Pathfinding
 !!SN&i^wog_209_enabled^:E(address)/1/5131985/(WOG_OnGetMovementPointsByMonsterSpeed);
 ; Scouting II
@@ -248,26 +251,21 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 
 
 ** start of battle-start trigger
-!?FU(OnBeforeBattle)|i^wog_204_enabled^/i^wog_207_enabled^;
+!?FU(OnBeforeBattleUniversal)|i^wog_204_enabled^/i^wog_207_enabled^;
 
 ** first aid
 !!if&i^wog_204_enabled^;
-  !!VRv7040:C0/0/0/0/0/0/0;                   [no creatures to resurrect after battle attacker]
-  !!VRv7047:C0/0/0/0/0/0/0;                   [no creatures to resurrect after battle defender]
-  !!BA:M0/0/?y-1/?v7040;                      [save qty in each of attacking hero's slots for after battle]
-  !!BA:M0/1/?y-1/?v7041;                      [to determine qty lost for first aid skill]
-  !!BA:M0/2/?y-1/?v7042;
-  !!BA:M0/3/?y-1/?v7043;
-  !!BA:M0/4/?y-1/?v7044;
-  !!BA:M0/5/?y-1/?v7045;
-  !!BA:M0/6/?y-1/?v7046;
-  !!BA:M1/0/?y-1/?v7047;                      [save qty in each of defending hero's slots for after battle]
-  !!BA:M1/1/?y-1/?v7048;                      [to determine qty lost for first aid skill]
-  !!BA:M1/2/?y-1/?v7049;
-  !!BA:M1/3/?y-1/?v7050;
-  !!BA:M1/4/?y-1/?v7051;
-  !!BA:M1/5/?y-1/?v7052;
-  !!BA:M1/6/?y-1/?v7053;
+  !!SN:Mi^wog_204_monList_0^ Mi^wog_204_monList_1^;
+
+  !!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+    !!FU(NewIntArray):P14/?i^wog_204_monList_%i^/(M_TEMP);
+
+    !!re j/(ARMY_SLOT_FIRST)/(ARMY_SLOT_LAST);
+      !!BA:Mi/j/?(type:y)/?(num:y);
+      !!VR(index:y):Sj *2;
+      !!SN:Vi^wog_204_monList_%i^/(index)/(type)/(num);
+    !!en;
+  !!en;
 !!en;
 
 ** mysticism
@@ -563,22 +561,15 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 
 
 ** start of battle end trigger
-!?FU(OnAfterBattleUniversal)|i^wog_204_enabled^/i^wog_207_enabled^/i^wog_202_enabled^;                     [Continue trigger if any skills are enabled]
+!?FU(OnAfterBattleUniversal)|i^wog_204_enabled^/i^wog_207_enabled^; [Continue trigger if any skills are enabled]
 ** first aid
 !!if&i^wog_204_enabled^;
-  !!HEi^battle_hero_0^:O?(owner:y);     [get attacking hero's owner]
+  !!re i/(BATTLE_LEFT)/i^battle_hero_vs_hero^;
+    !!HEi^battle_hero_%i^:O?(owner:y);     [get attacking hero's owner]
 
-  !!if&(owner)<>(NO_OWNER);
-    !!HEi^battle_hero_0^A2/6/?(has:y)/?(equipped:y); [see if attacking hero has a First Aid Tent]
-    !!FU(WOG_204_FirstAidAfterBattle)&(equipped)>0:P(BATTLE_LEFT); [handle first aid tent for attacker]
-  !!en;
-
-  !!if&i^battle_hero_1^>(NO_HERO);
-    !!HEi^battle_hero_1^:O?(owner);     [get defending hero's owner]
-
-    !!if&(owner)<>(NO_OWNER);
-      !!HEi^battle_hero_1^:A2/6/?(has)/?(equipped); [see if defending hero has a First Aid Tent]
-      !!FU(WOG_204_FirstAidAfterBattle)&(equipped)>0:P(BATTLE_RIGHT); [handle first aid tent for defender]
+    !!if&(owner)<>(NO_OWNER)/i^wog_204_monList_%i^;
+      !!HEi^battle_hero_%i^A2/6/?(has:y)/?(equipped:y); [see if attacking hero has a First Aid Tent]
+      !!FU(WOG_204_FirstAidAfterBattle)&(equipped)>0:Pi; [handle first aid tent for attacker]
     !!en;
   !!en;
 !!en;
@@ -591,24 +582,34 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 
 ** end of battle end trigger
 !?FU(WOG_201_SelectBestTarget);
-!#VA(side:x) (dmg:x) (result:x);
+!#VA(side:x) (ballistaStack:x) (damageMultiplier:x) (result:x);
 
 !!VR(min:y):S(side) *21;
 !!VR(max:y):S(min) +20;
 !!VR(result):S(NO_STACK);
 !!VR(killFv:y):S0;
 !!VR(killCount:y):S0;
+!!VR(fireShieldDmg:y);
+!!SN:E4468352/(CALLCONV_THISCALL)/(ballistaStack)/(TRUE); calc stack shoot damage theoretical;
+!!VR(baseDamage:y):Sv1 *(damageMultiplier);
 
+!!UN:C(ballistaStack)/1168/4/?(stepsTaken:y);
 !!re i/(min)/(max);
-  *!BA:M(enemySide)/i/?(mon:y)/?(qty:y);
-  !!BMi:N?(qty:y) H?(hp:y) T?(mon:y) O?(armySlot:y);
+  !!BMi:N?(qty:y) H?(hp:y) T?(mon:y) O?(armySlot:y) Z?(targetStack:y);
 
-  !!co|(armySlot)=(NO_MON);
+  *!co|(armySlot)=(NO_MON);
+  *!IF:M^%(armySlot)^;
+  *!BA:M(side)/(armySlot)/?(mon:y)/?(qty:y);
 
-  !!if&(mon)>(NO_MON)/(qty)>0/(hp)>0;
+  !!if&(mon)>(NO_MON)/(mon)<>(MON_ARROW_TOWERS)/(qty)>0/(hp)>0;
+    *!VRi^wog_201_Shoot^:S4;(dmg) Fd/(maxDamage);
+
+    !!SN:E4471904/(CALLCONV_THISCALL)/(ballistaStack)/(targetStack)/(baseDamage)/(TRUE)/(TRUE)/(stepsTaken)/?(fireShieldDmg);
+    !!VR(toStackDamage:y):Sv1;
+
     !!MA:F(mon)/?(fv:y);
-    *!VR(maxKillCount:y):S(qty);
-    !!VR(currKillCount:y):S(dmg) :(hp) F0/(qty);
+    !!VR(maxKillCount:y):S(qty);
+    !!VR(currKillCount:y):S(toStackDamage) :(hp) F0/(qty);
     !!VR(currKillFv:y):S(currKillCount) *(fv);
 
     ; Store the values if killing at least one
@@ -619,70 +620,107 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
     !!en;
   !!en;
 !!en;
+
 !?FU(OnStackToStackDamage)&i^wog_201_Shoot^;
-!!VRx4:Si^wog_201_Shoot^;
+!!VRx4:Sd*i^wog_201_Shoot^;
+!!VRi^wog_201_Shoot^:S(FALSE);
 
 ** function to handle artillery, hero, skill level
-!?FU(OnAfterTacticsPhase);
+; Restore BM:B value before showing battle results
+!?FU(OnSetupBattlefield)&i^wog_201_enabled^;
+!!FU(WOG_201_ResetArtilleryVariables):P;
+
+!?FU(WOG_201_ResetArtilleryVariables);
+!!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
+  !!VRi^wog_201_artillery_Stack_%i^:S(NO_STACK);
+  !!VRi^wog_201_artillery_Type_%i^:S(NO_MON);
+  !!VRi^wog_201_artillery_Num_%i^:S0;
+!!en;
+
+!?FU(WOG_201_OnBeforeBattleResult)&i^wog_201_enabled^;
+!#VA(hook:x);
+
+!!UN:C(hook)/(STRUCT_HOOK_CONTEXT_EBP)/4/?(ebp:y);
+!!UN:C(ebp)/8/4/?(winnerSide:y);
+
+!!if&i^wog_201_artillery_Stack_%(winnerSide)^>(NO_STACK);
+  !!BMi^wog_201_artillery_Stack_%(winnerSide)^:T?(type:y);
+
+  !!if&(type)=i^wog_201_artillery_Type_%(winnerSide)^;
+    !!BMi^wog_201_artillery_Stack_%(winnerSide)^:B?(initNum:y);
+    !!BMi^wog_201_artillery_Stack_%(winnerSide)^&(initNum)<i^wog_201_artillery_Num_%(winnerSide)^:Bi^wog_201_artillery_Num_%(winnerSide)^;
+  !!en;
+
+  !!FU(WOG_201_ResetArtilleryVariables):P;
+!!en;
+
+; Ballista shoots
+!?FU(OnAfterTacticsPhase)&i^wog_201_enabled^;
 !!VRi^wog_201_ShootOnce^:S(TRUE);
-&i^wog_201_enabled^
-!?FU(WOG_201_KillWithArtillery)&i^wog_201_enabled^/i^wog_201_ShootOnce^;
+
+!?FU(WOG_201_KillWithArtillery)&i^wog_201_ShootOnce^;
   !!VRi^wog_201_ShootOnce^:S(FALSE);
-  !!FU(WOG_GetRandomSeedByCoord):Pi^battle_x^/i^battle_y^/i^battle_z^/?(seed:y);
   !!re (side:y)/0/i^battle_hero_vs_hero^;
-    !!HEi^battle_hero_%(side)^:A2/(ART_BALLISTA)/?y99/?(ballista:y) S(SKILL_ARTILLERY)/?(artilleryLv:y);
-    !!if&(ballista)/(artilleryLv);
+    !!HEi^battle_hero_%(side)^:A2/(ART_BALLISTA)/?y99/?(ballista:y) S(SKILL_ARTILLERY)/?(artilleryLvl:y);
+
+    !!if&(ballista)/(artilleryLvl);
 
       !!VR(min:y):S(side) *21;
       !!VR(max:y):S(min) +20;
-
       !!re i/(min)/(max);
         !!BMi:T?t N?n;
 
         !!if&n>0/t=(MON_BALLISTA);
-          !!BMi:Z?(stack:y);
-          !!HEi^battle_hero_%(side)^:A2/(MON_AMMO_CART)/?(has:y)/?(equipped:y) E?(exp:y)/?(heroLv:y)/1; [check for Ammo Cart, get hero's level, artillery level]
-          !!VR(equipped):F0/1 +1;       [ammo cart bonus]
-          !!VR(mult:y):S1 +(artilleryLv) *(equipped); [set multiplier to 1]
-          !!VR(seed):+i^timerDay^ +(side) +i^battle_hero_%(side)^;
-          !!FU(WOG_SafeRand):P1/50/(seed)/?(dmg:y);
-          !!VR(dmg:y):+(heroLv) *(mult); [ballista damage: (1-50 + hero level) x bonus multiplier x ammo]
-          !!VR(oppSide:y):S(side) X1;
-          !!FU(WOG_201_SelectBestTarget):P(oppSide)/(dmg)/?(targetStackId:y);
+
+          !!BMi:Z?(ballistaStack:y) N?(ballistaNum:y) N1; set minimum ballista's num
+          !!VR(oppSide:y):S1 -(side);
+          !!FU(WOG_201_SelectBestTarget):P(oppSide)/(ballistaStack)/(artilleryLvl)/?(targetStackId:y);
 
           !!if&(targetStackId)<>(NO_STACK);
-            !!BM(targetStackId:y):Z?(targetStack:y) N?n H?h L?l;
+            !!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
 
-            !!VR(maxDamage:y):Sn *h -l -1;
-            !!VRi^wog_201_Shoot^:S(dmg) Fd/(maxDamage);
+            !!BM(targetStackId:y):Z?(targetStack:y) N?n H?h L?l P?p;
 
-            !!UN:C(stack)/16/4/(targetStack:y);                              [set stack target]
+            !!VRi^wog_201_Shoot^:S(artilleryLvl:y);(dmg) Fd/(maxDamage);
 
-            !!BMi:U3/?(shots:y) U3/1 G213/?(luck:y)/d  G213/0/d;
+            !!UN:C(ballistaStack)/248/4/?(ballistaSideIndex:y);
+            !!UN:C(targetStack)/248/4/?(targetStackSideIndex:y);
+            !#VA(stored[5]:y);
+            !!UN:C(cmbMgr)/68/4/?(stored[0]) C(cmbMgr)/78520/4/?(stored[1]) C(cmbMgr)/78524/4/?(stored[2]) C(cmbMgr)/78528/4/?(stored[3]) C(cmbMgr)/78536/4/?(stored[4]);                                                           [set combat target pos]
+            !!UN:C(cmbMgr)/68/4/p C(cmbMgr)/78520/4/(side) C(cmbMgr)/78524/4/(side) C(cmbMgr)/78528/4/(side) C(cmbMgr)/78536/4/(ballistaStack);                                                           [set combat target pos]
+
+            !!UN:C(ballistaStack:y)/16/4/(oppSide) C(ballistaStack:y)/14/4/(targetStackSideIndex) C(ballistaStack:y)/28/4/p; [set stack target]
+
+            !!BMi:U3/?(storedShots:y) U3/1 G(BMG_FIELD_MORALE)/?(storedMorale:y)/d G(BMG_FIELD_MORALE)/0/d G(BMG_FIELD_LUCK)/?(storedLuck:y)/d G(BMG_FIELD_LUCK)/0/d;                [get morale shots and luck]
 
             !!if&i^battle_isVisible^;
               !!VR(msg:z):S^%T(wog.201.ballista_log)^;
               !!MM:S(msg:z);
             !!en;
-
-            !!re j/0/4;                                                      [ skip double damage bonus]
-              !!UN:C4470304/j/1/?i^test_%j^ C4470304/j/1/(OPCODE_NOP_1); 
+            !#VA(patch[5]:y);
+            !!re j/0/4;                                                                                                      [ skip double damage bonus]
+              !!UN:C4470304/j/1/?(patch[j]) C4470304/j/1/(OPCODE_NOP_1); 
             !!en;
 
-            !!SN:E4453920/(CALLCONV_THISCALL)/(stack)/(targetStack:y);       [shoot stack to stack]
+            !!SN:E4453920/(CALLCONV_THISCALL)/(ballistaStack)/(targetStack:y);                                                       [shoot stack to stack]
 
             !!re j/0/4;
-              !!UN:C4470304/j/1/i^test_%j^;
+              !!UN:C4470304/j/1/(patch[j]);                                                                              [ restore double damage bonus message]
             !!en;
             restore stack and hero data
-            !!BMi:U3/(shots:y) G213/(luck:y)/d;
+            !!BMi:U3/(storedShots) G(BMG_FIELD_MORALE)/(storedMorale:y)/d G(BMG_FIELD_LUCK)/(storedLuck:y)/d;                                            [set back luck/morale]
+
+            restore combatManager data
+            !!UN:C(cmbMgr)/68/4/(stored[0]) C(cmbMgr)/78520/4/(stored[1]) C(cmbMgr)/78524/4/(stored[2]) C(cmbMgr)/78528/4/(stored[3]) C(cmbMgr)/78536/4/(stored[4]);                                                           [set combat target pos]
 
             next time make lost uncureable
             *!BM(targetStackId:y):N?(new:y);
             *!VR(lost:y):Sn -(new);
             *!BM(targetStackId:y):Bd-(lost);
             !!VRi^wog_201_Shoot^:S(FALSE);
+
           !!en;
+          !!BMi:N(ballistaNum:y); // restore ballista num
 
           !!br;
 
@@ -705,22 +743,34 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 !!VRy2:R0/0/6;                                      [random slot # to start search from]
 !!VRv2:S7;                                          [7 = slot not found]
 !!DO7003/0/6/1:P(side)/y1/y2;                       [heal next slot with >= 1 monster killed]
+
+!!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
+  !!SN:Mi^wog_204_monList_%i^;
+  !!VRi^wog_204_monList_%i^:S0;
+!!en;
 ** end of function
 
 
 ** function to find slot where at least 1 cr was lost
 !?FU7003;           x1=side x2=hp healed  x3=slot
+!#VA(side:x) (hpHealed:x) (slot:x);
+!#VA(usedY[10]:y);
 
 !!VRy4:Sx3 %7;                                      [get an actual slot number]
-!!BA&x1=(BATTLE_LEFT):M0/y4/?y5/?y6;                            [get y5 type and y6 qty in slot y3 :attacker]
-!!BA&x1=(BATTLE_RIGHT):M1/y4/?y5/?y6;                            [get y5 type and y6 qty in slot y3 :defender]
-!!VRy1&x1=(BATTLE_LEFT):S7040 +y4;                              [get variable # of previous qty :attacker]
-!!VRy1&x1=(BATTLE_RIGHT):S7047 +y4;                              [get variable # of previous qty :defender]
-!!VRy7:Svy1;                                        [get previous qty]
-!!VRy7:-y6;                                         [subtract current qty to get qty lost]
+!!BA:Mx1/y4/?y5/?y6;                                [get y5 type and y6 qty in slot y3]
 
-!!FU7004&v2=7/y7>0/y6>0:Px1/x2/x3/y4/y5/y6/y7;      [try to heal stack if some lost but some left]
-!!VRx3:+1;                                          [next slot]
+!!VR(index:y):Sy4 *2;
+!!SN:Mi^wog_204_monList_%(side)^/(index)/?(prevType:y);
+
+!!if&(prevType)=y5;
+  !!VR(index):+1;
+  !!SN:Mi^wog_204_monList_%(side)^/(index)/?y7;       [get previous qty]
+
+  !!VRy7:-y6;                                         [subtract current qty to get qty lost]
+  !!FU7004&v2=7/y7>0/y6>0:Px1/x2/x3/y4/y5/y6/y7;      [try to heal stack if some lost but some left]
+!!en;
+
+!!VRx3:+1;                                            [next slot]
 ** end of function
 
 
@@ -740,6 +790,7 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 !!BA&x1=(BATTLE_LEFT)/y5>0:M0/x4/?x5/dy5;                       [restore y5 creatures attacker]
 !!BA&x1=(BATTLE_RIGHT)/y5>0:M1/x4/?x5/dy5;                       [restore y5 creatures defender]
 
+; Show msg when the current player is the same as the interacting player
 !!OW:C?y31/?y32;
 
 !!if&y30=y32;
@@ -747,7 +798,7 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
   !!IF&y5>1:Q2/(PIC_TYPE_MONSTER)/x5/1/z148008;
 !!en;
 
-!!SN:D;                                            [redraw screen to show revived creatures]
+!!SN:D;                                             [redraw screen to show revived creatures]
 !!VRv2&y5>0:Sx4;                                    [note that we healed a stack if we did]
 ** end of function
 
@@ -942,8 +993,9 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
   !!VR(maxLevel):S(MON_MAX_LEVEL);
 !!en;
 
-!!MA:F(MON_BLOOD_DRAGON)/?(bloodFightValue:y);
-!!FU(WOG_GetRandomMonster):P?(mon)/(minLevel)/(maxLevel)/(bloodFightValue);
+!!MA:F(MON_BLOOD_DRAGON)/?(bloodFv:y);
+!!VR(maxFv:y):S(bloodFv) -1;
+!!FU(WOG_GetRandomMonster):P?(mon)/(minLevel)/(maxLevel)/(maxFv);
 
 !!SN:H^monname^/(mon)/0/?z704;          [get monster name]
 !!SN:H^monname^/(mon)/1/?z705;          [get monsters name]
@@ -1056,7 +1108,7 @@ Navigation, Pathfinding, Resistance, Scholar, Scouting is enabled in WoGify Opti
 !?FU(WOG_OnGetMovementPointsByMonsterSpeed);
 !#VA(address:x);
 
-!!UN:C(address)/(STRUCT_HOOK_CONTEXT_EBX)/4/?(heroStruct:y) C(heroStruct)/26/2/?(hero:y);
+!!UN:C(address)/(STRUCT_HOOK_CONTEXT_EBX)/4/?(heroStruct:y) C(heroStruct)/26/4/?(hero:y);
 
 !!HE(hero):S(SKILL_PATHFINDING)/?(skillLevel:y);
 !!FU&(skillLevel)<=(SKILL_NOT_LEARNED):E;[exit if the hero has no Pathfinidng skill]

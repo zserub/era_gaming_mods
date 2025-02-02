@@ -40,8 +40,6 @@ ZVSE2
   !!SN:Ex1/1/4496378/(WOG_DlgCreatureSplit_BeforeSettingNumber);
   !!SN:Ex1/1/4496839/(WOG_DlgCreatureSplit_AfterSplit);
 
-  ; These 2 hooks, WOG_BattleTent_BeforeIterateLoses and WOG_BattleTent_PrepareHealing have been moved to 9000 wog - stdlib as they would be used for all the war machine scripts
-
 !?FU(OnAfterErmInstructions)&i^WOG_73_enabled^;
   !!FU(WOG_73_Initialization):P;
 
@@ -541,6 +539,7 @@ ZVSE2
 
 !?FU(WOG_73_Dlg_BuyMachines_Prepare);
 !#VA(heroId:x) (army:x);
+  ; Important to form the normal creature recruit dialog - do we need to restore flags though?
   !!re i/(MON_BALLISTA)/(MON_AMMO_CART);
     !!MA:Xi/d~(MON_FLAG_SIEGE_WEAPON);
   !!en;
@@ -848,15 +847,14 @@ ZVSE2
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-!?FU(OnBattleMouseHint)&i^WOG_73_Battle_HealPower^/i^mouse_battleHex^>=(BATTLE_HEX_FIRST)/i^mouse_battleHex^<=(BATTLE_HEX_LAST);
+!?FU(OnBattleMouseHint)&i^WOG_73_Battle_HealPower^/i^mouse_battleHex^>=(BATTLE_HEX_FIRST)/i^mouse_battleHex^<=(BATTLE_HEX_LAST)/i^battle_isActingSideUiUser^;
   !!BMi^battle_current_stack^:T?(monType:y);                                                                           [get type of monster]
   !!BU:Ei^mouse_battleHex^/?(targetStackId:y);                                                                         [check monster position]
   !!FU&(monType)<>(MON_FIRST_AID_TENT):E;
   !!FU&(targetStackId)=(NO_STACK):E;                                                                                   [exit if no monster]
   !!BM(targetStackId):I?(targetSide:y);                                                                                [get targetSide]
 
-  !!OW:C?y99/?(mouseOwner:y);
-  !!if&(mouseOwner)=i^battle_owner_%i(battle_current_side)^/(targetSide)=i^battle_current_side^;                       [allow proc only if we own both stacks]
+  !!if&i^battle_current_side^=(targetSide);                                                                             [allow proc only if we own both stacks]
 
     !!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y) C(cmbMgr)/78560/4/?(cursor:y);
 
@@ -1044,9 +1042,7 @@ ZVSE2
 
   !!IF:W(heroId);
   !!HE(heroId):O?(heroOwner:y);
-  !!re i/0/2;
-      !!VR(wVar):Si +81;
-  !!en;
+
   !!FU(WOG_73_Func_CorrectHeroVariablesW):P(heroId);  [set vars to 0 if no machines after combat or increase if captured]
 
   !!VRi^WOG_73_battle_hero_%(side)_SpellPoints^:S0;
@@ -1057,6 +1053,7 @@ ZVSE2
 
       !!BMi^WOG_73_WM_%(side)_%i_stack_id^:N?(wmAmount:y); [get last number]
       !!VR(wmAmount):F0/w(wVar);        [restrict by placed value]
+
       !!if&i^WOG_73_BattleLastAction^=(BATTLE_ACTION_SURRENDER)/i^WOG_73_BattleLastSide^=(side)|(heroOwner)<>(NO_OWNER); [if surrend or not loose]
         !!VRw(wVar):S(wmAmount);                                                                                         [set no more then we had at start]
       !!el&i^WOG_73_BattleLastAction^=(BATTLE_ACTION_RETREAT);                                                           [if retreated]

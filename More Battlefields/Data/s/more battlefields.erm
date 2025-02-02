@@ -1,0 +1,12 @@
+ZVSE2
+; Author:   Archer30
+; Engine:   ERM 2.0+
+; Requires: ERA 3.9.10+, WoG Scripts, Era Erm Framework
+
+; More battlefields for wog option 68 "New Battlefields".
+
+
+!#UN:P68/(TRUE);
+
+!?FU(OnAfterErmInstructions);
+!!VRi^wog_68_randomBackground_enabled^:S(TRUE); [Enable random background for battles (instead of relying on terrain subtypes)]

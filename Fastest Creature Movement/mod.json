@@ -1,0 +1,38 @@
+{
+	"caption": {
+		"Cn_Simp": "移动点数取决于最快的生物",
+		"en_US": "Fastest Creature Movement",
+		"ru_RU": "Быстрое Передвижение Существа",
+		"ua_UA": ""
+	},
+	"description": {
+		"full": {
+			"Cn_Simp": "description_chn.txt",
+			"en_US": "description.txt",
+			"ru_RU": "description_rus.txt",
+			"ua_UA": ""
+		},
+		"short": {
+			"Cn_Simp": "",
+			"en_US": "",
+			"ru_RU": "",
+			"ua_UA": ""
+		}
+	},
+	"author": "Archer30",
+	"homepage": "https://www.h3wog.com/thread-78731-1-1.html",
+	"icon": {
+		"file": "fastest creature movement.ico",
+		"index": 0
+	},
+	"mod_version": "1.2",
+	"priority": 0,
+	"compatibility": {
+		"class": "default",
+		"entries": {}
+	},
+	"platform": "era",
+	"info_version": "1.0",
+	"plugins": {},
+	"category": "gameplay"
+}

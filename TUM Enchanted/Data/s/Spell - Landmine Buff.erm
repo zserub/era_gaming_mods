@@ -1,0 +1,12 @@
+ZVSE2
+; Author:   SadnessPower (robertomaest1@gmail.com)
+; Updated by Archer30
+; Engine:   ERM 2.0+;
+; Buff the Landmine spell by doing these changes:
+; - Now the spell can be cast if there are native terrain creatures on enemy stack
+; - Native terrain creatures will see landmine as normal but will take damage from mines
+
+!?FU(OnGameEnter)&i^Advanced_Classes_Mod_Active^=(FALSE);   apply script only if ACM is disabled because ACM contains it
+!!UN:C5894160/1/235;                    [0059F010 - Skip terrain check on spell cast]
+!!UN:C5897919/1/235;                    [0059FEBF - Skip monster native terrain check while moving]
+

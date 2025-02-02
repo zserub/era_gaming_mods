@@ -218,14 +218,13 @@ ZVSE2
 ; _Set collectRes to FALSE for AI unless they have fewer than 300 mp_
 !!if&-1000;
   !!VR(collectRes):S(TRUE); [AI always picks up]
-**;  !!VR(collectRes)&y-22<300:S(TRUE); [AI hero only gathers resources if it has less than 300 movement points remaining]
 !!en;
 
 !!FU&(collectRes)<>(TRUE):E; [Exit if hero doesn't gather resources]
 
-!!VRy-22:-300 F0/(INT_MAX); [Remove 300 movement points: y-22. Minimum 0]
+!!VRy-22:-200 F0/(INT_MAX); [Remove 300 movement points: y-22. Minimum 0]
 !!HEy-2:Wy-22; [Remove 300 movement points from hero]
-!!VRy-4:Sy-4 *10;  [Multiply the original gold value by 10 and assign it back to y-4]
+!!VRy-4:Sy-4 *3;  [Multiply the original gold value by 3 and assign it back to y-4]
 
 
 !!if&1000;

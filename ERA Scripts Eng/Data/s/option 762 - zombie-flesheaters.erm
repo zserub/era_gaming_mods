@@ -30,19 +30,7 @@ ZVSE2
 
 ; Get the attacker/defender stack
 !!MF:N?(defStack:y);
-
-; If it is a retaliation
-!!if&(defStack)=i^battle_acting_stack^;
-  !!BG:E?(atkStack:y);
-; If it is a normal attack, exit for secondary targets
-!!el;
-  !!BG:E?(targetStack:y);
-  !!FU&(defStack)<>(targetStack):E;
-
-  !!VR(atkStack):Si^battle_acting_stack^;
-!!en;
-
-!!FU|(atkStack)=(NO_STACK)/(defStack)=(NO_STACK):E;
+!!VR(atkStack:y):Si^es_attackStack^;
 
 ; Check if the attacking monster is a flesh eater
 !!BM(atkStack):T?(type:y);
@@ -55,6 +43,7 @@ ZVSE2
   !!BM(defStack):F?(monFlags:y);
   !!VR(isAlive:y):S(monFlags) &(MON_FLAG_ALIVE);
   !!VR(isClone:y):S(monFlags) &(MON_FLAG_CLONE);
+  !!VRi^es_762_isSummoned^:S(monFlags) &(MON_FLAG_SUMMONED);
 
   !!if&(isAlive)/(isClone)=(FALSE);
     ; Check if the defending monster would be be killed by the flesh eater
@@ -65,6 +54,7 @@ ZVSE2
     !!if&(finalDmg)>=(defCurrTotalHp);
       !!VRi^es_762_regenHp^:S(defCurrTotalHp);
       !!BM(defStack):Fd|813694976 E0;    [Clone, Sacrified, No Colouring]
+      !!VRi^es_762_eatenStack^:S(defStack);
     !!en;
   !!en;
 !!en;
@@ -81,6 +71,7 @@ ZVSE2
 !!if&(atkNum)>0/(defNum)<=0;
   ; Remove the clone flag from the defender
   !!BM(defStack):Fd~(MON_FLAG_CLONE);
+  !!BM(defStack)&i^es_762_isSummoned^=(FALSE):Fd~(MON_FLAG_SUMMONED);
 
   ; Calculate the new HP and number of the flesheater
   !!VR(noHpLost:y):S(FALSE);
@@ -109,20 +100,21 @@ ZVSE2
 
   ; Show battle log and play animation/sound
   !!if&i^battle_isVisible^/(noHpLost)<>(TRUE);
-    ; Play sound and animation
-    !!SN:P^ANIMDEAD^;
-    !!BM(atkStack):V74;
-
     !!BM(atkStack):T?(type:y);
     !!VR(isPlural:y):S(atkNum) -1 B;
     !!SN:H^monname^/(type)/(isPlural)/?(flesheaterName:z);
-    !!SN:T^es.762.battleLog%(isPlural)^/?(battleLog:z)/^flesheater^/(flesheaterName)/^hp^/(hpDrained);
+    !!SN:T^es.762.battleLog%(isPlural)^/?(battleLog:z)/^flesheater^/(flesheaterName)/^hp^/(hpDrained)/^resNum^/(resNum);
     !!MM:S(battleLog);
+    
+    ; Play sound and animation
+    !!SN:P^ANIMDEAD^;
+    !!BM(atkStack):V74;
   !!en;
 !!en;
 
 ; Restore the global variable
 !!VRi^es_762_regenHp^:S0;
+!!VRi^es_762_isSummoned^:S0;
 
 // Funciton to check if the targeted monster is eligible for flesh eating
 !?FU(ES_762_CheckIfMonIsEligible);

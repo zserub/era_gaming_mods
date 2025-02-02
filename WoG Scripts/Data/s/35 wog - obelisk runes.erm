@@ -41,7 +41,7 @@ ZVSE2
         !!UN:U(OBJ_OBELISK)/(ANY_OBJ)/i/2;
         !!VR(random:y):R0/0/(maxIndex);
         !!SN:M(spells)/(random)/?(spellId:y);
-        !!PO2:S(spellId);
+        !!PO2:S(SPELL_TOWN_PORTAL);
       !!en;
     !!el;
       !!UN:P43/(FALSE);  [; Disable option if there is no adventure spell available]

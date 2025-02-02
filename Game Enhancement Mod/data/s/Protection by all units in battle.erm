@@ -20,15 +20,18 @@ ZVSE2
 !!VRi^nig_allDefendRound^:S0;
 ; События нажатия клавиши в бою. Первый аргумент (x1) код клавиши. Второй — предотвратить ли реакцию по умолчанию
 ; Список кодов клавиш встроен в ЕРМ редактор и отдельно есть в Mods\Era Erm Framework\9999 key codes.erm
-*?FU87008&x1=18|x1=33;
 !?FU(OnKeyPressed_Battle)&(ERM_FLAG_IS_HUMAN);    [/i^battle_humanOnly^=(FALSE);]
 !!VR(doAction:y):S(FALSE);
 !!VR(doAction)&i^key_leftAlt^=1/i^key_down^=(TRUE):S(TRUE);
 !!VR(doAction)&i^key_rightAlt^=1/i^key_down^=(TRUE):S(TRUE);
 
 !!if&(doAction):;
-  !!FU(gem_All_Actions_Function)&x1=(KEY_W):P1/1; ждать всеми со звуком кнопки
-  !!FU(gem_All_Actions_Function)|x1=(KEY_D)/x1=(KEY_SPACE):P0/1; защита всеми со звуком кнопки
+  !!BG:A?(bgAction:y);
+  !!UN:C6916668/4/?(isActionUndergoing:y);
+  !!if&(isActionUndergoing)=(BATTLE_ACTION_CANCEL);
+    !!FU(gem_All_Actions_Function)&x1=(KEY_W):P1/1; ждать всеми со звуком кнопки
+    !!FU(gem_All_Actions_Function)|x1=(KEY_D)/x1=(KEY_SPACE):P0/1; защита всеми со звуком кнопки
+  !!en;
 !!en;
 
 !?FU(gem_All_Actions_Function)&(ERM_FLAG_IS_HUMAN);/i^battle_humanOnly^=(FALSE);
@@ -94,6 +97,12 @@ ZVSE2
 
 !!if&(stackSide)=i^nig_allDefendSide^/i^nig_isAllDefendAction^=(TRUE):;                  Если текущая сторона — та, что активировала «Защита всем»
   !!FU(nig_CheckStackIsControled):P(stackId)/?(controlled:y);
+  !!VR(playerId:y):Si^battle_owner_%(stackSide)^;
+  !!if&(controlled:y)/i^gem_option_7_%(playerId)^;
+    !!BM(stackId):F?f;
+    !!VRf:&(MON_FLAG_SIEGE_WEAPON);
+    !!FU&f:E;
+  !!en;
   !!if&(controlled);
     !!BG:A(BATTLE_ACTION_DEFEND);                          Выбираем действие «Защита»
   !!en;
@@ -109,12 +118,12 @@ ZVSE2
   !!en;
 
   !!if&(isAiAttacker)=(FALSE);
-    !!VRi^nig_isAllDefendAction^&i^gem_option_1_%i(atkPlayer)^=(TRUE):S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
+    !!VRi^nig_isAllDefendAction^&i^gem_option_1_%(atkPlayer)^=(TRUE):S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
     !!FU:E;
   !!en;
 
   !!if&(isAiDeffender)=(FALSE);
-    !!VRi^nig_isAllDefendAction^&i^gem_option_1_%i(isAiDeffender)^:S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
+    !!VRi^nig_isAllDefendAction^&i^gem_option_1_%(isAiDeffender)^:S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
   !!en;
 
 !!en:;
@@ -131,6 +140,12 @@ ZVSE2
 
   !!if&(stackSide)=i^nig_allWaitSide^;/y12<>1:;                  Если текущая сторона — та, что активировала «Защита всем»
     !!FU(nig_CheckStackIsControled):P(stackId)/?(controlled:y);
+    !!VR(playerId:y):Si^battle_owner_%(stackSide)^;
+    !!if&(controlled:y)/i^gem_option_7_%(playerId)^;    
+      !!BM(stackId):F?f;
+      !!VRf:&(MON_FLAG_SIEGE_WEAPON);
+      !!FU&f:E;
+    !!en;
     !!if&(controlled);
       !!BG:A(BATTLE_ACTION_WAIT);                          Выбираем действие «Защита»
     !!en;
@@ -144,12 +159,12 @@ ZVSE2
     !!en;
 
     !!if&(isAiAttacker)=(FALSE);
-      !!VRi^nig_isAllWaitAction^&i^gem_option_1_%i(atkPlayer)^=(TRUE):S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
+      !!VRi^nig_isAllWaitAction^&i^gem_option_1_%(atkPlayer)^=(TRUE):S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
       !!FU:E;
     !!en;
 
     !!if&(isAiDeffender)=(FALSE);
-      !!VRi^nig_isAllWaitAction^&i^gem_option_1_%i(isAiDeffender)^:S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
+      !!VRi^nig_isAllWaitAction^&i^gem_option_1_%(isAiDeffender)^:S(FALSE); [Иначе отключаем флаг «Защита всем», давая противнику сделать ход, а человеку потом среагировать на него]
     !!en;
 
   !!en:;

@@ -70,12 +70,12 @@ ZVSE2
 !!UN:P795/?y1;
 !!FU&y1=0:E;   [выход если опция не включена]
 
-** генерация события (до 1го события за каждого игрока на каждом ходу)
+** event generation (up to 1 event for each player on each turn)
 !!UN:X?(mapSize:y)/?(twoLvlMap:y);                [y1/y2 - размер/этажность карты]
 !!VR(mapSize):-1;                    [y1 - макс. координата]
 !!FU7916:P(mapSize)/(twoLvlMap);              [генерация события]
-** обнаружение событий для каждого героя текущего игрока
 
+** detect events for each hero of the current player
 !#VA(hero[8]:y);
 !!OW:Oi^timerOwner^/?(hrOnMap:y)/?(hero[0])/?(hero[1])/?(hero[2])/?(hero[3])/?(hero[4])/?(hero[5])/?(hero[6])/?(hero[7]);
 
@@ -86,16 +86,24 @@ ZVSE2
       !!HE(hero[i]):P?(x:y)/?(y:y)/?(z:y) O?(checkOwner:y);
 
       !!if&(x)>-1/(y)>-1/(checkOwner)=i^timerOwner^;
-        !!HE(hero[i]):S(SKILL_SCOUTING)/?(area:y) A2/(ART_SPECULUM)/d/?(hasSpec:y) A2/(ART_SPYGLASS)/d/?(hasSpy:y);
-        !!VR(area)&(hasSpec):+1;
-        !!VR(area)&(hasSpy):+1;
-        !!VR(area):*4 +5;
-
-        !!DO(ES_795_SearchEventForPlayerHero)/1/(area)/1:Pi^timerOwner^/i^timerIsAi^/(mapSize)/(hero[i])/(x)/(y)/(z);
+        !!HE(hero[i]):S(SKILL_SCOUTING)/?(radius:y);
+        !!FU(ES_795_GetArtNightScoutingRadius):P(hero[i])/?(artRadius:y); [Here we use a function for mod compatibility]
+        !!VR(radius):+(artRadius) *4 +5;
+        
+        !!DO(ES_795_SearchEventForPlayerHero)/1/(radius)/1:Pi^timerOwner^/i^timerIsAi^/(mapSize)/(hero[i])/(x)/(y)/(z);
       !!en;
     !!en;
   !!en;
 !!en;
+
+; Function for mod compatibility
+!?FU(ES_795_GetArtNightScoutingRadius);
+!#VA(hero:x) (result:x);
+
+!!VR(result):S0;
+!!HE(hero):A2/(ART_SPECULUM)/d/?(hasSpec:y) A2/(ART_SPYGLASS)/d/?(hasSpy:y);
+!!VR(result)&(hasSpec):+1;
+!!VR(result)&(hasSpy):+1;
 
 !?FU(ES_795_SearchEventForPlayerHero);
 !#VA(player:x) (isAi:y) (size:x) (heroId:y) (x:x) (y:x) (z:x);
@@ -156,7 +164,7 @@ ZVSE2
   !!SN:W^o795.%Y1.%Y2.%Y3.P5^/?y9;  [...]
 
   !!VRv1:Sy4 +8000;                 [v1 - номер функции обработчика события]
-  !!FUv1:Px1/x4/x2/y1/y2/y3/y5/y6/y7/y8/y9; [вызов функции обработчика]
+  !!FUv1:Px1/x4/x2/y1/y2/y3/y5/y6/y7/y8/y9; [Handle function call - FU8000, FU8001, FU8002, FU8003, FU8004, FU8005, FU8006, FU8007, FU8008, FU8009]
 
   !!SN:W^o795.%Y1.%Y2.%Y3.T^/?y10;  [y10 - тип события]
   !!VRx16&y10=0:S100500;            [прерывание поиска событий, если событие активировано]
@@ -400,18 +408,18 @@ ZVSE2
 !!en; 
 
 !?FU8002;                     [Продавец артефакта]
-** Продавец артефакта за ресурсы
-** P1 = тип артефакта, P2 = тип ресурса, P3 = Кол-во ресурса
-** проверка условия срабатывания
+** Artifact seller for resources
+** p1 = Artifact Type, p2 = Resource Type, p3 = Resource Quantity
+** checking the trigger condition
 !!OW:Rx1/x8/?y5;              [y5 - кол-во требуемого ресурса у игрока]
 !!FU&y5<x9:E;                 [событие не случается, если ресурса недостаточно]
 
 !!SN:W^o795.%X4.%X5.%X6.T^/0; [удаление события]
 
-!!if&x3=1;                    [обработчик игрока ИИ]
+!!if&x3=1;                    [AI player handler]
   !!HEx2:A2/x7/?y1/?y2;       [y1/y2 - кол-во артефактов предлагаемого типа у героя]
   !!UN:Ax7/2/?y3;             [y3 - позиция предлагаемого артефакта]
-  !!HEx2:A1/?y10/0 A1/?y11/1 A1/?y12/2 A1/?y13/3 A1/?y14/4 A1/?y15/5 A1/?y16/6 A1/?y17/7 A1/?y18/8; [Артефакты на герое]
+  !!HEx2:A1/?y10/0 A1/?y11/1 A1/?y12/2 A1/?y13/3 A1/?y14/4 A1/?y15/5 A1/?y16/6 A1/?y17/7 A1/?y18/8; [Artifacts on the hero]
   !!HEx2:A1/?y19/9 A1/?y20/10 A1/?y21/11 A1/?y22/12 A1/?y23/18;                                     [...]
   !!VRy1&y3=1/y10>=0:S1;      [проверка занятости необходимого слота]
   !!VRy1&y3=2/y11>=0:S1;      [...]
@@ -422,12 +430,12 @@ ZVSE2
   !!VRy1&y3=7/y16>=0/y17>=0:S1; [...]
   !!VRy1&y3=8/y18>=0:S1;      [...]
   !!VRy1&y3=9/y19>=0/y20>=0/y21>=0/y22>=0/y23>=0:S1; [...]
-  !!FU|y1>0/y2>0:E;           [выход, если артефакт уже есть у героя или все доступные для него слоты заняты]
+  !!FU|y1>0/y2>0:E;           [Exit if the hero already has the artifact or all slots available to him are occupied]
 
   !!VRy5:-x9;                 [вычитание стоимости артефакта]
   !!OW:Rx1/x8/y5;             [обновление ресурсов игрока]
   !!HEx2:A4/x7;               [передача артефакта герою]
-!!el;                         [обработчик игрока-человека]
+!!el;                         [Human player handler]
   !!VRy1:Sx8 +179311;         [y1 - индекс переменной с описанием события]
   !!VRz7:Szy1;
   !!VRz8:Sz179318;            [получение описаний события]
@@ -652,7 +660,7 @@ ZVSE2
   !!IF:M1/1;                  [вывод сообщения]
 !!en; 
 
-!?FU8007;                               // Барахольщик - предлагает за случайный артефакт в рюкзаке героя наиболее необходимые ему ресурсы по случайно заданному курсу
+!?FU8007;                               // hoarder - offers the most necessary resources for a random artifact in the hero’s backpack at a randomly set rate
 ** x1 - игрок, x2 - герой, x3 - 0/1=Человек/ИИ, x4-x6 - координаты события, x7-x11 - параметры события
 ** P1 = размер группы, P2 = стоимость групы
 ** проверка условия срабатывания
@@ -791,7 +799,8 @@ ZVSE2
     !!FU&y36<y38:E;           [выход, если существа присоединены]
     !!VRy34:Sy3 *y6;          [y34 - вознаграждение за 100% "спасенных"]
     !!OW:Rx1/6/dy34;          [вознаграждение ИИ]
-  !!en; 
+  !!en;
+
 !!el;                         [обработчик игрока-человека]
   !!UN:N3/1/x7/1;
   !!UN:N3/2/x8/1;             [z1/z2 - наименования существ (мн.ч.)]
@@ -843,24 +852,20 @@ ZVSE2
   !!en; 
 !!en; 
 
-!?FU(OnBeforeBattleUniversal);
-!!UN:P795/?(wogOption:y);
-!!FU&(wogOption)=(FALSE):E;
+!?FU(OnBeforeBattleUniversal)&i^opt795.10.dc^; [кол-во защищающихся существ в конфликте]
+!!SN:W^opt795.10.at^/?y4 W^opt795.10.ac^/?y5; [y4/y5 - тип/кол-во атакующих]
+!!VRy12:Sy5 :2 *2;
+!!VRy13:Sy5 :3 *3;            [y9 - количество атакующих отрядов (1..3)]
+!!VRy9:S1;
+!!VRy9&y12=y5:S2;
+!!VRy9&y13=y5:S3;             [...]
+!!VRy10:Sy5 :y9;              [y10 - кол-во существ в атакующих отрядах]
+!!BA:M1/0/y4/y10;             [установка атакующих существ]
+!!BA&y9>1:M1/1/y4/y10;        [...]
+!!BA&y9>2:M1/2/y4/y10;        [...]
 
-
-; Creature Conflict
-!!if&i^opt795.10.dc^<>0;        [кол-во защищающихся существ в конфликте]
-  !!SN:W^opt795.10.at^/?y4 W^opt795.10.ac^/?y5; [y4/y5 - тип/кол-во атакующих]
-  !!VRy12:Sy5 :2 *2;
-  !!VRy13:Sy5 :3 *3;            [y9 - количество атакующих отрядов (1..3)]
-  !!VRy9:S1;
-  !!VRy9&y12=y5:S2;
-  !!VRy9&y13=y5:S3;             [...]
-  !!VRy10:Sy5 :y9;              [y10 - кол-во существ в атакующих отрядах]
-  !!BA:M1/0/y4/y10;             [установка атакующих существ]
-  !!BA&y9>1:M1/1/y4/y10;        [...]
-  !!BA&y9>2:M1/2/y4/y10;        [...]
-!!en;
+; Save a backup for battlereplay
+!!VRi^opt795.10.dc1^:Si^opt795.10.dc^;
 
 !?FU(OnSetupBattlefield);
 !!SN:W^opt795.10.dt^/?y1 W^opt795.10.dc^/?y2; [y1/y2 - тип/кол-во атакующих]
@@ -883,19 +888,47 @@ ZVSE2
 !!VRy4&y5<>y1:S0;             [обнуление кол-ва защищавшихся, если отряд тругого типа]
 !!SN:W^opt795.10.dc^/y4;      [обновление кол-ва защищавшихся]
 
-!?FU(OnBattleStackObtainsTurn);
-!!SN:W^opt795.10.dt^/?y1 W^opt795.10.dc^/?y2 W^opt795.10.ds^/?y3;
-!!FU&y2=0:E;                  [выход, если не конфликт]
+; Restore variables on battle replay
+!?FU(OnBattleReplay)&i^opt795.10.dc1^;
+!!VRi^opt795.10.dc^:Si^opt795.10.dc1^;
 
-!!SN:X?y4/?y5;
-!!VRy4:*21 +y5;               [y4 - номер отряда]
-!!BMy4:T?y5;                  [y5 - тип отряда]
-!!FU|y5<>y1/y4<>y3:E;         [выход, если отряд не "защищающийся"]
+; Release variables
+!?FU(OnAfterBattleUniversal);
+!!VRi^opt795.10.dc1^:S0;
 
-; Restore var on loading
 !?FU(OnAfterLoadGame);
 !!VRi^opt795.10.dc^:S0;
+!!VRi^opt795.10.dc1^:S0;
 
+; Restore the henchman in battle replay
+!?FU(OnBeforeBattleUniversal)&i^hench_enabled^;
+!!SN:W^henchmen_side_0^/(FALSE)  W^henchmen_side_1^/(FALSE);
+!!BA:H0/?(atkHero:y) H1/?(defHero:y);
+
+!!if&(atkHero)>(NO_HERO);
+  !!IF:W(atkHero);
+  !!SN:W^henchmen_side_0^/w119;
+!!en;
+
+!!if&(defHero)>(NO_HERO);
+  !!IF:W(defHero);
+  !!SN:W^henchmen_side_1^/w119;
+!!en;
+
+!?FU(OnBattleReplay)&i^hench_enabled^;
+!!BA:H0/?(atkHero:y) H1/?(defHero:y);
+
+!!if&(atkHero)>(NO_HERO);
+  !!IF:W(atkHero);
+  !!VRw119&i^henchmen_side_0^:S(TRUE);
+!!en;
+
+!!if&(defHero)>(NO_HERO);
+  !!IF:W(defHero);
+  !!VRw119&i^henchmen_side_1^:S(TRUE);
+!!en;
+
+; Assassins
 !?FU8009;                     [Ассасины]
 ** Приобретение ассасинов, принимающих участие в боях героя
 ** x1 - игрок, x2 - герой, x3 - 0/1=Человек/ИИ, x4-x6 - координаты события, x7-x11 - параметры события
@@ -921,7 +954,8 @@ ZVSE2
   !!VRz10:S^^;
   !!VRz11:S^- %X8^;           [формирование подсказок]
 
-  !!FU(ES_795_ShowDialog):Px2/7/0/2/?y12/1/143/0/0/3/6/0/9; [вызов диалога и получение ответа в y12 (1-да,2-нет)]
+  !!FU(ES_795_GetAssassinMonType):P?y30;
+  !!FU(ES_795_ShowDialog):Px2/7/0/2/?y12/1/y30/0/0/3/6/0/9; [вызов диалога и получение ответа в y12 (1-да,2-нет)]
 
   !!if&y12<>1;                [при отказе]
     !!VRz1:Sz179405;          [z1 - текст финального сообщения]
@@ -935,8 +969,19 @@ ZVSE2
   !!en;     
 !!en; 
 
+; Assassin
+!?FU(ES_OnResetHero);
+!#VA(hero:x);
+
+!!UN:P795/?(wogOption:y);
+!!FU&(wogOption)=(FALSE):E;
+
+!!VRi^opt795.11.f%(hero)^:S0;
 
 !?FU(OnBattleRound)&i^battle_round^>=0;
+!!UN:P795/?(wogOption:y);
+!!FU&(wogOption)=(FALSE):E;
+
 !!re i/0/1;
   !!VRi^es_795_assassins_acted_%i^:S(FALSE);
 !!en;
@@ -945,14 +990,12 @@ ZVSE2
 !!UN:P795/?(wogOption:y);
 !!FU&(wogOption)=(FALSE):E;
 
-!!VRr:R0/0/3;
 !!VR(actSide:y):Sx1 :21;
 !!VR(actHero:y):Si^battle_hero_%(actSide)^;
-!!FU&r:E;
 
-!!if&(actHero)<>(NO_HERO)/i^es_795_assassins_acted_%(actSide:y)^=(FALSE)/   
-i^opt795.11.%(actHero:y)^>0/i^opt795.11.f%(actHero:y)^=(FALSE);
-
+!!if&(actHero)<>(NO_HERO)/i^opt795.11.%(actHero:y)^>0/i^opt795.11.f%(actHero:y)^=(FALSE)/i^es_795_assassins_acted_%(actSide:y)^=(FALSE);
+  !!VRr:R0/0/3;
+  !!FU&r>0:E;                               [Disable here for testing]
   !!VR(oppSide:y):S(actSide) X1;
 
   !!FU(NewIntArray):P?(targetStackPtrs:y);
@@ -961,15 +1004,19 @@ i^opt795.11.%(actHero:y)^>0/i^opt795.11.f%(actHero:y)^=(FALSE);
 
   !!re i/(start:y)/(end:y);(end_value);
     !!BMi:N?n T?t S?s;
+
     !!if&n>0/t<>(NO_MON)/s>0/t<>(MON_FIRST_AID_TENT);
       !!BMi:Z?(stackStruct:y);
       !!FU(ES_996_CheckStackCanAct):P(stackStruct:y)/?(canAct:y);
+
       !!if&(canAct);
         !!FU(Array_Push):P(targetStackPtrs)/(stackStruct);
       !!en;
     !!en;
   !!en;
+
   !!SN:M(targetStackPtrs)/?(size:y);
+
   !!if&(size);
     !!FU(Array_Shuffle):P(targetStackPtrs);
     !!VR(success:y):S(FALSE);
@@ -977,163 +1024,225 @@ i^opt795.11.%(actHero:y)^>0/i^opt795.11.f%(actHero:y)^=(FALSE);
 
     !!re (stackIdFromAray:y)/0/(size)/1/-1;
       !!SN:M(targetStackPtrs)/(stackIdFromAray)/?(targetStackPtr:y);
-      !!FU(NewIntArray):P?(availableGexes:y);                                     [prepare array of the hexes]
+      *!FU(NewIntArray):P?(availableHexes:y);                                     [prepare array of the hexes - daemon's implementation]
       !!UN:C(targetStackPtr)/132/4/?f C(targetStackPtr)/132/4/d~(MON_FLAG_FLYER); [remove flying]
       !!UN:C(targetStackPtr)/696/4/?(bindDuration:y) C(targetStackPtr)/696/4/0;   [and bind spell]
 
-      !!re i/0/(BATTLE_HEX_LAST);                                                 [loop hexes]
-        !!SN:E5390176/(CALLCONV_THISCALL)/(targetStackPtr)/i/0;                   [can stack reach that hex]
-        !!if&v1;
-          !!FU(Array_Push):P(availableGexes)/i;                                   [add into array]
-        !!en;
+      ; Archer's implementation: Search only the adjacenet hexes of the target to summon
+      ; This implementation might be better than daemon's as it reduces the animation time, has less calculation and is less likely to crash
+      !!UN:C(targetStackPtr)/248/4/?(targetStackIdOfSide:y);
+      !!VR(targetStackId:y):S(BATTLE_STACKS_PER_SIDE) *(oppSide) +(targetStackIdOfSide);
+      !!FU(ES_GetAvailAdjacentHexesOfStack):P(targetStackId)/?(adjacentHexesList:y);
+
+      !!SN:M(adjacentHexesList)/?(adjacentListSize:y);
+
+      !!if&(adjacentListSize)>0;
+        !!FU(Array_Shuffle):P(adjacentHexesList);
+        !!SN:M(adjacentHexesList)/0/?(randPos:y);
+        !!VR(success):S(TRUE);
       !!en;
+
+      ; daemon's implementation: Search for the whole battlefield to summon
+      ; This implementation has been reported buggy in siege battle. The game can crash when assassins' are crossing the moat
+      *!re i/(BATTLE_HEX_FIRST)/(BATTLE_HEX_LAST);                                [loop hexes]
+        *!SN:E5390176/(CALLCONV_THISCALL)/(targetStackPtr)/i/0;                   [can stack reach that hex]
+
+        *!if&v1;
+          *!FU(Array_Push):P(availableHexes)/i;                                   [add into array]
+        *!en;
+      *!en;
+
       !!UN:C(targetStackPtr)/132/4/f C(targetStackPtr)/696/4/(bindDuration:y);    [restore flying and bind duration]
-      !!SN:M(availableGexes)/?(numOfHexes:y);                                     [get array size]
-      !!if&(numOfHexes);                                                          [if not empty]
-        !!VR(numOfHexes):-1;
-        !!VR(randHexIndex:y):R0/0/(numOfHexes);                                   [get random hex]
-        !!SN:M(availableGexes)/(randHexIndex:y)/?(randPos:y);                     [get position]
-        !!VR(success:y):S(TRUE);
-        !!br;
-      !!en;
+
+      ; daemon's implementation: continue
+      *!SN:M(availableHexes)/?(numOfHexes:y);                                     [get array size]
+
+      *!if&(numOfHexes);                                                          [if not empty]
+        *!VR(numOfHexes):-1;
+        *!VR(randHexIndex:y):R0/0/(numOfHexes);                                   [get random hex]
+        *!SN:M(availableHexes)/(randHexIndex:y)/?(randPos:y);                     [get position]
+        *!VR(success:y):S(TRUE);
+
+        *!br;
+      *!en;
     !!en;
 
-    !!FU&(success:y)<>(TRUE):E;                                                                 [end if no targets]
-    !!VRi^es_795_summoned_stack_id^:S(NO_STACK);                                                    [assume summon is failed]
-    !!UN:P758/?(wogOption:y) P758/0;
+    !!FU&(success:y)<>(TRUE):E;         [end if no targets]
 
-    !!SN:E4692528/(CALLCONV_THISCALL)/(cmbMgr:y)/(actSide:y)/(MON_ROGUE)/i^opt795.11.%(actHero:y)^/(randPos:y)/4194304/1; [summmon stack]
+    !!VRi^es_795_summoned_stack_id^:S(NO_STACK); [assume summon is failed]
+    !!UN:P758/?(cutThroats:y) P758/(FALSE); [Disable Cutthroat]
+
+    !!FU(ES_795_GetAssassinMonType):P?(monType:y);
+    !!SN:E4692528/(CALLCONV_THISCALL)/(cmbMgr:y)/(actSide:y)/(monType)/i^opt795.11.%(actHero:y)^/(randPos:y)/4194304/1; [summmon stack, basically BU:S?]
 
     !!VR(assassinsStackId:y):Si^es_795_summoned_stack_id^;
     !!VRi^es_795_summoned_stack_id^:S(NULL);
-    !!if&(assassinsStackId:y)<>(NO_STACK);                                                   [if not failed]
+
+    !!if&(assassinsStackId:y)<>(NO_STACK); [if not failed]
       !!SN:E4628608/(CALLCONV_THISCALL)/(cmbMgr);
       !!VR(showIt:y):Sv1 X1;
+
       !!if&(showIt:y);
-        !!SN:P^CLONE^;                                                                              [play sound]
         !!VRz1:S^%T(es.795.assassins.appear)^;
-        !!MM:Sz1;                                                                               [^%T(es.795.singName)^]
+        !!MM:Sz1;                       [^%T(es.795.singName)^]
+        !!SN:P^CLONE^;                  [play sound]
       !!en;
-      !!BM(assassinsStackId:y):Z?(assassinsStack:y) G213/0/d;
-      !!UN:C(targetStackPtr)/248/4/?(id:y);
-      !!VR(targetStackId:y):S21 *(oppSide) +(id);
-      !!BM(targetStackId):P?p F?f;
-      !!VRf:&(MON_FLAG_WIDE) B;                  [check mon is wide]
 
-      !#VA(positions[2]:y);
+      !!BM(assassinsStackId:y):Z?(assassinsStack:y) G(BMG_FIELD_LUCK)/0/d;
 
-      !!VR(positions[0]):Sp;
-      !!if&(oppSide);
-        !!VR(positions[1]):Sp-1;
-      !!el;
-        !!VR(positions[1]):Sp+1;
-      !!en;
-      !!FU(NewIntArray):P?(nearHeaxesArr:y);
+      ; daemon's implementation: continue
+      *!UN:C(targetStackPtr)/248/4/?(id:y);
+      *!VR(targetStackId:y):S21 *(oppSide) +(id);
+      *!BM(targetStackId):P?p F?f;
+      *!VRf:&(MON_FLAG_WIDE) B;         [f, check mon is wide]
 
+      *#VA(positions[2]:y);
 
-      !!re i/0/f;                                 [if target is wide]
-        !!VR(offset:y):S(positions[i]) *12 +78952;
-        !!VRo:S1 Xf;
-        !!re j/0/5;
-          !!UN:C(cmbMgr)/(offset)/2/?(hexId:y);
-          !!SN:E5390176/(CALLCONV_THISCALL)/(assassinsStack)/(hexId:y)/0; can stack reach hex
-          !!if&v1;/(hexId)>(BATTLE_HEX_FIRST)/(hexId)<>(positions[o]);
-            !!FU(ES_IfHexIsFree):P(hexId)/?(isFree:y);
-            !!if&(isFree)/(hexId)<>(positions[o]);
-              !!FU(Array_Push):P(nearHeaxesArr)/(hexId:y);
-            !!en;
-          !!en;
-          !!VR(offset):+2;
-        !!en;
-      !!en;
-      !!FU(Array_SortedUnique):P(nearHeaxesArr);
-      !!SN:M(nearHeaxesArr)/?(size:y);
+      *!VR(positions[0]):Sp;
 
-      !!if&(size);
-        !!VR(size):-1;
-        !!VR(randomInd:y):R0/0/(size);
-        !!SN:M(nearHeaxesArr)/(randomInd)/?(positionToMove:y);
-        !!UN:C(cmbMgr)/78544/4/(positionToMove);
-        !!SN:E4479536/(CALLCONV_THISCALL)/(assassinsStack)/(positionToMove:y)/0; [move to position;]
-      !!en;
+      *!if&(oppSide);
+        *!VR(positions[1]):Sp-1;
+      *!el;
+        *!VR(positions[1]):Sp+1;
+      *!en;
+
+      *!FU(NewIntArray):P?(nearHeaxesArr:y);
+
+      *!re i/0/f;                                 [if target is wide]
+        *!VR(offset:y):S(positions[i]) *12 +78952;
+        *!VRo:S1 Xf;
+
+        *!re j/0/5;
+          *!UN:C(cmbMgr)/(offset)/2/?(hexId:y);
+          *!SN:E5390176/(CALLCONV_THISCALL)/(assassinsStack)/(hexId:y)/0; can stack reach hex
+
+          *!if&v1;/(hexId)>(BATTLE_HEX_FIRST)/(hexId)<>(positions[o]);
+            *!FU(ES_CheckIfHexIsFree):P(hexId)/?(isFree:y);
+
+            *!if&(isFree)/(hexId)<>(positions[o]);
+              *!FU(Array_Push):P(nearHeaxesArr)/(hexId:y);
+            *!en;
+          *!en;
+
+          *!VR(offset):+2;
+        *!en;
+      *!en;
+
+      *!FU(Array_SortedUnique):P(nearHeaxesArr);
+      *!SN:M(nearHeaxesArr)/?(size:y);
+
+      *!if&(size);
+        *!VR(size):-1;
+        *!VR(randomInd:y):R0/0/(size);
+        *!SN:M(nearHeaxesArr)/(randomInd)/?(positionToMove:y);
+        *!UN:C(cmbMgr)/78544/4/(positionToMove);
+        *!SN:E4479536/(CALLCONV_THISCALL)/(assassinsStack)/(positionToMove:y)/0; [move to position;]
+      *!en;
 
       !!UN:C(assassinsStack)/136/4/?(singlDescPtr:y) C(assassinsStack)/140/4/?(multDescPtr:y);
       !!SN:B(singlDescPtr)/d/?(storeS:z) B(multDescPtr)/d/?(storeP:z);
       !!SN:B(singlDescPtr)/d/^%T(es.795.assassins.singName)^ B(multDescPtr)/d/^%T(es.795.assassins.plurName)^;
 
-      !!SN:E4478848/(CALLCONV_THISCALL)/(assassinsStack)/(positions[0])/0;     [make attack to position;]
+      ; Archer's implementation: continue
+      ; Get BM:P value as the position to attack
+      ; There is no point getting another hex for wide unit as Assassins don't have Breath/Strike all Around
+      !!BM(targetStackId):P?(attackPos:y);
+      !!SN:E4478848/(CALLCONV_THISCALL)/(assassinsStack)/(attackPos)/0; [make attack to position]
+
+      ; Daemon's implementatoin: continue
+      ; (positions[0]) might be incorrect as it can be (positions[1]) too?
+      *!SN:E4478848/(CALLCONV_THISCALL)/(assassinsStack)/(positions[0])/0;     [make attack to position]
+
       !!SN:B(singlDescPtr)/d/(storeS:z) B(multDescPtr)/d/(storeP:z);
 
-      !!BM(assassinsStackId:y): P?p;
-      !!BM(assassinsStackId:y):Fd|268435456 Fd|1073741824 B0 N0;
+      !!BM(assassinsStackId:y):P?p;
+      !!BM(assassinsStackId:y):Fd|268435456 Fd|1073741824;
       !!UN:C(assassinsStack:y)/234/1/1;                                        [указываем, что отряд умер]
       !!VRi^es_795_assassins_acted_%(actSide:y)^:S(TRUE);
 
-      !!if&(showIt:y);
+      !!if&(showIt);
         !!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
         !!SN:E4810128/2/(cmbMgr:y)/50/p/40/0;                                  [animate]
         !!VRz1:S^%T(es.795.assassins.disappear)^;
         !!MM:Sz1;
       !!en;
+
+      !!BM(assassinsStackId:y):B0 N0;
+
       !!SN:E4621680/(CALLCONV_THISCALL)/(cmbMgr:y)/51/1;                       [remove body]
-
-
     !!en;
-    !!UN:P758/(wogOption:y);
+
+    !!UN:P758/(cutThroats);
   !!en;
 !!en;
-
 
 !?FU(ES_BattleStack_InitParams)&i^es_795_summoned_stack_id^=(NO_STACK);
 !!VRi^es_795_summoned_stack_id^:Sx1;
-!!VR(monFlags:y):S(MON_FLAG_NO_MORALE) |(MON_FLAG_NO_RETALIATION) |(MON_FLAG_FIRE_IMMUNITY);
-!!BMx1:Sd100 Fd|(monFlags:y) A10 D10 H20 L0 U1/5 U2/7 G(SPELL_ANTI_MAGIC)/10/(SKILL_EXPERT); [параметры ассасинов 10ат/10зщ/20зд/10ск/5-7ур]
-!!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
-!!SN:E4628608/(CALLCONV_THISCALL)/(cmbMgr);
-!!if&v1=0;
-  !!BMx1:P?p;
-  !!SN:E4810128/2/(cmbMgr:y)/50/p/40/0;    [вывод анимации]
-!!en;
+!!VR(monFlags:y):S(MON_FLAG_NO_MORALE) |(MON_FLAG_NO_RETALIATION) |(MON_FLAG_FIRE_IMMUNITY); [Assassins have only 3 flags to reduce complexity (no breath/strike all around from Rogues)]
+!!BMx1:Sd100 F(monFlags) A10 D10 H20 L0 U1/5 U2/7 G(SPELL_ANTI_MAGIC)/10/(SKILL_EXPERT); [параметры ассасинов 10ат/10зщ/20зд/10ск/5-7ур]
+*!UN:C(COMBAT_MANAGER)/4/?(cmbMgr:y);
+*!SN:E4628608/(CALLCONV_THISCALL)/(cmbMgr);
+
+*!if&v1=0;
+  *!BMx1:P?p;
+  *!SN:E4810128/2/(cmbMgr:y)/50/p/40/0;    [вывод анимации]
+*!en;
+
+// Function to get the creature type of the Assassin
+!?FU(ES_795_GetAssassinMonType);
+!#VA(monType:x);
+
+!!VR(monType):S(MON_ROGUE);
 
 
-!?FU(OnHeroScreenMouseClick);           [Клик в окне героя]
-!!UN:P795/?y1;
-!!FU&y1=0:E;                            [выход если опция 795 не включена]
+!?FU(OnHeroScreenMouseClick)&i^mouse_action^=(MOUSE_LMB_RELEASED)/i^mouse_flags^=(NO_MOUSE_FLAGS);           [Клик в окне героя]
+!!UN:P795/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;             [выход если опция 795 не включена]
 
-!!CM:I?y1 F?y2 S?y3;                    [y1-y3 - параметры клика]
 !!SN:F^GetButtonID^/^assasins^;
-!!VRy4:Sv1;                             [y4 - ID кнопки "assasins"]
-!!FU|y1<>y4/y2<>0/y3<>13:E;             [выход если не отпущена ЛКМ на кнопке ассасинов]
+!!FU&v1<>i^mouse_item^:E;
 
-!!HE(CURRENT_HERO):N?y1;
-!!SN:W^opt795.11.%Y1^/?y2;              [y2 - количество ассасинов у героя]
+!!FU(ES_795_GetAssassinMonType):P?(assassinsType:y);
+!!SN:H^monname^/(assassinsType)/1/?(monName:z) H^monname^/(assassinsType)/1/^%T(es.795.assassins.plurName)^;
 
-!!if&i^opt795.11.%Y1^<1;                              [вывод информации об ассасинах героя и запрос роспуска, если ассасины есть]
-  !!IF:M1/^%T(es.795.assassins.noUnits)^;                           // 
-!!el;                                   // 
-  *!SN:W^opt795.11.f%Y1^/?y3;           // y3 - запрет участия ассасинов в битвах
-  !!SN:T^es.795.assassins.header^/?(msg:z)/^num^/i^opt795.11.%Y1^;
+!!HE(CURRENT_HERO):N?h;
+!!VR(assassinsNum:y):Si^opt795.11.%h^;
+!!VR(picSubtype:y):S65536 *(assassinsNum) +(assassinsType);
 
-  !!if&i^opt795.11.f%Y1^;
-    !!VR(add:z):S^%T(es.795.assassins.restrict)^;
-  !!el;
-    !!VR(add:z):S^%T(es.795.assassins.allow)^;
+!!if&(assassinsNum:y)<1;                [вывод информации об ассасинах героя и запрос роспуска, если ассасины есть]
+  !!IF:Q1/(PIC_TYPE_MONSTER)/(picSubtype)/(MSG_TYPE_MES)/^%T(es.795.assassins.noUnits)^;                           // 
+!!el;
+  !!VR(msgType:y):S(MSG_TYPE_MES);
+  !!SN:T^es.795.assassins.header^/?(msg:z)/^num^/(assassinsNum:y);
+
+  ; Propose to change assassin status
+  !!if&999;
+    !!HEh:O?(owner:y);
+    
+    !!if&(owner)=i^timerOwner^;
+      !!VR(msgType):S(MSG_TYPE_QUESTION);
+
+      !!if&i^opt795.11.f%h^=0;
+        !!VR(add:z):S^%T(es.795.assassins.allow)^;
+      !!el;
+        !!VR(add):S^%T(es.795.assassins.restrict)^;
+      !!en;
+    !!en;
+
+    !!VR(msg):+^%T(es.endl)%T(es.endl)^ +(add);
   !!en;
-  !!VR(msg):+^%T(es.endl)%T(es.endl)^ +(add);
-  !!IF:Q1/(msg);текст сообщения
-  !!if&1;
-    !!VRi^opt795.11.f%Y1^:S(FALSE); [разрешение участия в битве при положительном ответе]
-  !!el;
-    !!VRi^opt795.11.f%Y1^:S(TRUE);  [запрет участия в битве при отрицательно ответе]
-  !!en;
+
+  !!IF:Q1/(PIC_TYPE_MONSTER)/(picSubtype)/(msgType)/(msg);
+  !!VRi^opt795.11.f%h^&1/(msgType)=(MSG_TYPE_QUESTION):X(TRUE);
 !!en;
+
+!!SN:H^monname^/(assassinsType)/1/(monName);
+
 
 
 !?FU(OnAfterBattleUniversal);
 !!UN:P795/?y1;
 !!FU&y1=0:E;                            [выход если опция 795 не включена]
-
-
 
 !!BA:H0/?y1 H1/?y2;
 !!FU&y2<1:E;                            // y1/y2 - атакующий/защищающийся герои, выход, если не битва двух героев

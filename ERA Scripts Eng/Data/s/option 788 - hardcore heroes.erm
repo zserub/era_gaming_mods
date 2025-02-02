@@ -5,7 +5,7 @@ ZVSE2
 ** Name rus.     : Смертные герои
 ** Options       : 788
 
-; To-do: Fix the compatibility with Hero Specialty Boost
+; This script might not be fully compatible with Hero Specialty Boost option
 
 
 !?FU(OnBeforeBattleAction);             // перед действием в бою
@@ -17,13 +17,15 @@ ZVSE2
 ; This function is executed in 1000 es - stdlib in order to be sooner than random heroes (option 72 from WoG Scripts)
 !?FU(ES_788_Rebirth);                   // Перерождение героя
 !#VA(hero:x);
+!#VA(usedY[30]:y);
+
+; Exit if the hero is not neutral
+; Double check to make sure there is no crash when FU(ES_788_Rebirth) is called by external scripts by any chance
+!!HE(hero):O?(owner:y);
+!!FU&(owner)<>(NO_OWNER):E;
 
 ; Exit if the defeated hero is Asmodeus
 !!FU&(hero)=i^wog_106_Asmodeus^:E;
-
-; Exit if the hero is visible
-!!HE(hero):P?(x:y)/?(y:y)/?(z:y);
-!!FU|(x)<>-1/(y)<>-1/(z)<>-1:E;
 
 ; Reset the hero
 !!HE(hero):Z?(heroPtr:y);
@@ -44,6 +46,14 @@ ZVSE2
 
 ; Remove war machines
 !!HE(hero):A-(ART_BALLISTA) A-(ART_FIRST_AID_TENT);
+
+; Manage random seed
+; This is to prevent generating the same random numbers when fighting in the same location again and again
+; Restoring the seed is futile (as the seed can be more than 4 bytes)
+!!UN:C6814692/4/?(seed:y);
+!!VR(newSeed:y):S(seed) +i^es_788_counter^;
+!!VRi^es_788_counter^:+1;
+!!VR(random:y):R0/(newSeed);
 
 !!HE(hero):B2/?y2;
 !!VRy1:Sy2 :2;                          // y1 - раса героя 0..8
@@ -93,6 +103,9 @@ ZVSE2
   !!en;
 !!en;
 
+; Reset the specialty icon (if it was set by UN:G2 before)
+!!UN:G2/(hero)/3/-1;
+
 ; Set Up new specialty (give Ballista for Ballista specialists)
 !!FU(ES_788_SetUpNewSpecialty):P(hero)/y2/y3/y4/i;
 
@@ -101,11 +114,10 @@ ZVSE2
 !!HE(hero)&y2=1:A1/(ART_SPELL_BOOK)/17;                 // выдам катапульту и книгу всем героям
 
 ; Set up reborn flags (set the last 16 bit to 788 to ensure the variable is not 0)
-!!VRy30:Sy2 +1;                         [Set hero type to positive number in order to be packed]
-!!FU(PackUnion):Py30/2/y3/1/y4/1/i/12/788/16/?i^es_788_rebornFlags_%(hero)^;
+!!VR(positiveHeroType:y):Sy2 +1;                         [Set hero type to positive number in order to be packed]
+!!FU(PackUnion):P(positiveHeroType)/2/y3/1/y4/1/i/12/788/16/?i^es_788_rebornFlags_%(hero)^;
 
 ; Reset secondary skills and teach the specialty skill
-; Warning: This script does not include checks of banned skills, idealy should use FU(ES_GameMgr_Skill_isBanned)
 ; Teach Estates if the hero is a resources master
 !!re i/(SEC_SKILL_FIRST)/(SEC_SKILL_LAST); // для каждого втор.навыка
   !!HE(hero):Si/(SKILL_NOT_LEARNED);        // удаляем все вторичные навыки героя
@@ -167,7 +179,7 @@ ZVSE2
     !!HE(hero)&i=3:S25/1;                   // Волшебство
     !!HE(hero)&i=4:S26/1;                   // Сопротивление
   !!en; 
-!!en; 
+!!en;
 
 ; Reset global variables for Achievementes and Assassins (Night Scouting)
 ** удаление достижений
@@ -180,29 +192,26 @@ ZVSE2
 !!SN:W^opt795.11.%(hero)^/?y15 W^opt795.11.%(hero).rebirth^/y15 W^opt795.11.%(hero)^/0; // удаление ассасинов
 
 ** очистка командира/артефактов командира
-!!UN:P(WOG_OPT_DISABLE_COMMANDERS)/?i P(WOG_OPT_COMMANDERS_NEED_HIRING)/?j P51/?k;                // i/j/k - статус опций Командиры / Обязательный найм командиров / Измененные командиры
+!!UN:P(WOG_OPT_DISABLE_COMMANDERS)/?(isDisabled:y) P(WOG_OPT_COMMANDERS_NEED_HIRING)/?(needHiring:y) P51/?(isEnhanced:y);                // i/j/k - статус опций Командиры / Обязательный найм командиров / Измененные командиры
 
-!!if&i=(FALSE);                               // если командиры разрешены
-  !!CO(hero):A4/-1/0/-1/0/-1/0/-1/0/-1/0/-1/0;         // удаление артефактов командира
-  !!CO(hero):B0/0 D0 Ty1 X0/1000 X1/0 X2/1;            // удаление способностей, уровня, опыта, оживление и сброс расы командира
-  !!CO(hero)&k=0:P0/5 P1/5 P2/40 P3/9 P4/1 P5/4 P6/5;  // сброс первичных параметров командира
-  !!CO(hero)&k=1:P0/5 P1/5 P2/30 P3/10 P4/3 P5/5 P6/0; // сброс первичных параметров для "измененного" командира
-  !!CO(hero):S0/0 S1/0 S2/0 S3/0 S4/0 S5/0 S6/0;       // сброс вторичных навыков командира
+!!if&(isDisabled)=(FALSE);                               // если командиры разрешены
 
-  !!CO(hero)&j:E0;                          // если командиры должны быть наняты, удаляем командира
+  !!VR(npcStruct:y):S(SIZEOF_COMMANDER_STRUCT) *(hero) +(ADDR_WOG_COMMANDERS_TABLE);
+  !!SN:E7772852/(CALLCONV_THISCALL)/(npcStruct);                                    [init NPC (resets all data)]
+  !!UN:C(heroPtr)/81/4/?(heroExp:y);
+  !!if&(heroExp:y)>0;
+    !!SN:E7771729/(CALLCONV_THISCALL)/(npcStruct)/(heroExp)/1;                      [Add NPC experience from hero and use auto level ups]
+  !!en;
+  !!VR(isEnabled:y):S(needHiring) X1;
+  !!UN:C(npcStruct)/4/(isEnabled);                                                   [enable NPC if NeedHiring is FALSE]
 
-  !!if&k;                             // если включены измененные командиры, раздаем расовые бонусные навыки
-    !!CO(hero)&y1=0:B1/5/0;                 // paladin         - endless retaliation 
-    !!CO(hero)&y1=1:B1/7/0;                 // heirophant      - magic mirror (fire shield)
-    !!CO(hero)&y1=2:B1/4/0;                 // temple guardian - shoot 
-    !!CO(hero)&y1=3:B1/14/0;                // succubus        - fly 
-    !!CO(hero)&y1=4:B1/1/0;                 // soul eater      - fear
-    !!CO(hero)&y1=5:B1/3/0;                 // brute           - no retaliation 
-    !!CO(hero)&y1=6:B1/8/0;                 // ogre leader     - block 
-    !!CO(hero)&y1=7:B1/12/0;                // shaman          - 50% poison (death stare)
-    !!CO(hero)&y1=8:B1/0/0;                 // astral spirit   - ignore 50% defense  
+  !!if&(isEnhanced:y);                                                              [если включены измененные командиры, раздаем расовые бонусные навыки]
+    !!FU(WOG_51_SetNpcAbilities):P(hero);                                           [delegate npc abilities to the original script]
   !!en;
 !!en;
+
+** обнуление благословений/проклятий
+!!HE(hero):Y0/0/0/3;                        // удаление всех благословений/проклятий
 
 ; Reset all the w-vars, special treatments for war machiens and henchmen
 !!IF:W(hero);                               // w-переменные текущего героя
@@ -225,14 +234,34 @@ ZVSE2
 !!UN:P49/?(hench:y);
 !!VRw118&(hench):S(NO_MON);
 
-** обнуление благословений/проклятий
-!!HE(hero):Y0/0/0/3;                        // удаление всех благословений/проклятий
+; Adventure Cave
+!!UN:P30/?(advCave:y);
+
+!!if&(advCave);
+  !!VRw62:S-1; [hero paying for Rogue attack]
+  !!VRw63:S-1; [artifact stolen by Rogues]
+!!en;
+
+; Reset known global vars
+; Enhanced War Machines I
+!!UN:P54/?(wm1:y);
+
+!!if&(wm1);
+  !!re (wmArt:y)/(ART_BALLISTA)/(ART_AMMO_CART);
+    !!VRi^wog_54_%(hero)_disable%(wmArt)^:S0;
+  !!en;
+!!en;
+
+; Estates II
+!!VRi^wog_191_dailyResPlusOne_%(hero)^:S0;
+
 
 // Set up new specialty
 !?FU(ES_788_SetUpNewSpecialty);
 !#VA(hero:x) (heroType:x) (random1:x) (random2:x) (subtype:x);
 
 ; Set up variable to determine whether to set hero spec desc
+; If it's not valid (due to banned secondary skills), FU(ES_788_Rebirth) will be executed again
 !!VR(isNotValid:y):S(FALSE);
 
 !!HE(hero):B2/?(class:y);
@@ -272,6 +301,7 @@ ZVSE2
 
     ; Creature Trainer
     !!if&(random2)=1;                                                // специалисты по лучшению существ
+      !!VR(isValidCreature:y):S(TRUE);
       !!if&(subtype)=(MON_MONK);
         !!VR(mon2:y):S(MON_ZEALOT);
         !!VR(mon3:y):S(MON_WAR_ZEALOT);
@@ -293,13 +323,15 @@ ZVSE2
         !!VR(mon3):S(MON_NIGHTMARE);
       !!el&(subtype)=(MON_GREEN_DRAGON);
         !!VR(mon2):S(MON_GOLD_DRAGON);
-        !!VR(mon3):S(MON_BLOOD_DRAGON);
+        !!VR(mon3):S(MON_DIAMOND_DRAGON);
       !!el&(subtype)=(MON_RED_DRAGON);
         !!VR(mon2):S(MON_BLACK_DRAGON);
         !!VR(mon3):S(MON_BLOOD_DRAGON);
+      !!el;
+        !!VR(isValidCreature:y):S(FALSE);
       !!en;
 
-      !!if|(subtype)=(MON_MONK)/(subtype)=(MON_GREMLIN)/(subtype)=(MON_STONE_GOLEM)/(subtype)=(MON_WALKING_DEAD)/(subtype)=(MON_CAVALIER)/(subtype)=(MON_UNICORN)/(subtype)=(MON_GREEN_DRAGON)/(subtype)=(MON_RED_DRAGON);
+      !!if&(isValidCreature);
         !!HE(hero):X6/(subtype)/0/0/0/(mon2)/(mon3);
         !!SN:H^monname^/(subtype)/1/?(mon1Name:z) H^monname^/(mon2)/1/?(mon2Name:z) H^monname^/(mon3)/1/?(mon3Name:z);
 
@@ -355,23 +387,13 @@ ZVSE2
 
   !!el;                                               // маг с заклинанием
     ; Aura of Curse
-    ; Note: Aura of Curse specialists are also spell specialists
+    ; Warning: Must make sure there is no other definition for Summon Boat, Scuttle Boat, Visions and View Earth
     !!if&(random2)=1/(subtype)>=7/(subtype)<=10;      // специалисты по аурам-проклятиям
-      !#VA(spellsList[11]:y);
+      !!VR(curseType:y):S(subtype) -7;  [index: 0-3]
 
-      !!VR(spellsList):C45/47/42/54;
-      !!VR(curseType:y):S(subtype) -7;
-      !!VR(spell:y):S(spellsList[curseType]);
-
-      !!UN:J0/(spell)/?(isNotValid);
-
-      !!if&(isNotValid)=(FALSE);
-        !!FU10932:P(spell)/?(isNotValid); [WoG legacy. same function as FU(WOG_CHECK_SPELL_BAN)]
-
-        !!HE(hero):X3/(spell)/0/0/0/0/0;
-        !!HE(hero):M(spell)/(TRUE);
-        !!SN:T^es.788.auraOfCurse%(curseType)^/?(spec);
-      !!en;
+      !!HE(hero):X3/(curseType)/0/0/0/0/0;
+      !!UN:G2/(hero)/3/353;
+      !!SN:T^es.788.auraOfCurse%(curseType)^/?(spec);
     ; Battlemage
     !!el;
       ; Check if the spell is disabled (map editor) or banned (wog options)
@@ -380,7 +402,7 @@ ZVSE2
 
       !!VR(spellsList):C15/16/17/20/21/23/22/18/19/26/25;
       !!VR(spellsList[10])&(faction)=(TOWN_NECROPOLIS):S24;
-      !!VR(spell):S(spellsList[subtype]);
+      !!VR(spell:y):S(spellsList[subtype]);
 
       !!UN:J0/(spell)/?(isNotValid);
 
@@ -405,19 +427,6 @@ ZVSE2
   !!FU(ES_788_Rebirth):P(hero);
 !!en;
 
-!?FU(ES_788_SetUpAuraOfCurseSpec);
-!#VA(hero:x) (subtype:x) (specInd:x);
-
-!!HE(hero)&(subtype)=7:X3/45/0/0/0/0/0;         // Слабость
-!!HE(hero)&(subtype)=8:X3/47/0/0/0/0/0;         // Разрушение
-!!HE(hero)&(subtype)=9:X3/42/0/0/0/0/0;         // Проклятье
-!!HE(hero)&(subtype)=10:X3/54/0/0/0/0/0;        // Медлительность
-
-!!VR(curseType:y):S(subtype) -6;
-!!SN:T^es.788.auraOfCurse%(curseType)^/?(spec:z);
-!!VR(specInd):Z(spec);
-
-
 ** Подержка специализаций на заклинаниях перерожденных героев
 !?FU(OnMagicCorrectedResistance);       // при нанесении урона заклинанием
 !!UN:P788/?y1;
@@ -441,112 +450,91 @@ ZVSE2
 !!MR:Fy3;                               // установка бонуса к урону в размере 5% за уровень героя
 
 ** Подержка аур-проклятий перерожденных героев
-!?FU(OnBeforeBattleUniversal);
-!!UN:P788/?y1;
-!!FU&y1=0:E;                            // выход, если опция не включена
-
-!!SN:W^opt788.a1^/0 W^opt788.a2^/0 W^opt788.a3^/0 W^opt788.a4^/0; // сброс флагов аур-проклятий
-
-; Aura of Curse - Must be executed later than anything else to have a wider range of effect
+// Aura of Curse - Must be executed later than anything else to have a wider range of effect
 !?FU(OnBattleRound_Quit)&i^battle_round^=0;
-!!UN:P788/?y1;
-!!FU&y1=0:E;                            // выход, если опция не включена
+!!UN:P788/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;
 
-!!BA:H0/?y1 H1/?y2;                     // y1/y2 - номера сражающихся героев
-!!VRy11:C0/0/0/0;                       // y11..y14 - действующие ауры
-!!HEy1:X?y3/?y4/d/d/d/d/d;              // y3/y4 - специализация атакующего героя
+!!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
+  !!co&i^battle_hero_%i^=(NO_HERO);
 
-!!if&y3=3/i^es_788_rebornFlags_%y1^<>0;              [флаг перерождения атакующего героя]
-  !!VRy11&y4=45:S1;                // y11 - активация ауры Слабости
-  !!VRy12&y4=47:S1;                // y11 - активация ауры Разрушения
-  !!VRy13&y4=42:S1;                // y11 - активация ауры Проклятья
-  !!VRy14&y4=54:S1;                // y11 - активация ауры Медлительности
-!!en;
+  ; Skip if not reborn hero
+  !!VR(hero:y):Si^battle_hero_%i^;
+  !!co&i^es_788_rebornFlags_%(hero)^=0;
 
-!!if&y2>=0;                             // если есть защищающийся герой
-  !!HEy2:X?y3/?y4/d/d/d/d/d;            // y3/y4 - специализация защищающегося героя
+  !!HE(hero):X?(type:y)/?(subtype:y)/d/d/d/d/d;
 
-  !!if&y3=3/i^es_788_rebornFlags_%y2^<>0;            [флаг перерождения защищающегося героя]
-    !!VRy11&y4=45:S1;              // y11 - активация ауры Слабости
-    !!VRy12&y4=47:S1;              // y11 - активация ауры Разрушения
-    !!VRy13&y4=42:S1;              // y11 - активация ауры Проклятия
-    !!VRy14&y4=54:S1;              // y11 - активация ауры Медлительности
+  !!if&(type)=3/(subtype)>=0/(subtype)<=3;
+    !!FU(NewIntArray)&i^battle_isVisible^:P?(affectedStacksList:y);
+
+    !!re i/(BATTLE_STACK_FIRST)/(BATTLE_STACK_LAST);
+      !!BMi:T?(type:y) N?(num:y);
+      !!co|(type)<=(NO_MON)/(type)=(MON_ARROW_TOWERS)/(num)<=0;
+
+      ; Attack
+      !!if&(subtype)=0;
+        !!BMi:A?(atk:y);
+
+        !!if&(atk)>=1;
+          !!VR(atk)::2;
+          !!BMi:A(atk);
+          !!FU(Array_Push)&i^battle_isVisible^:P(affectedStacksList)/i;
+        !!en;
+      ; Defense
+      !!el&(subtype)=1;
+        !!BMi:D?(def:y);
+
+        !!if&(def)>=1;
+          !!VR(def)::2;
+          !!BMi:D(def);
+          !!FU(Array_Push)&i^battle_isVisible^:P(affectedStacksList)/i;
+        !!en;
+      ; Damage
+      !!el&(subtype)=2;
+        !!BMi:U1/?(minDmg:y) U2/?(maxDmg:y);
+
+        !!if&(minDmg)<(maxDmg);
+          !!BMi:U2/(minDmg);
+          !!FU(Array_Push)&i^battle_isVisible^:P(affectedStacksList)/i;
+        !!en;
+      ; Speed
+      !!el;
+        !!BMi:S?(spd:y);
+
+        !!if&(spd)>=2;
+          !!VR(spd)::2;
+          !!BMi:S(spd);
+          !!FU(Array_Push)&i^battle_isVisible^:P(affectedStacksList)/i;
+        !!en;
+      !!en;
+    !!en;
+
+    !!if&i^battle_isVisible^;
+      !!SN:M(affectedStacksList)/?(size:y);
+
+      !!if&(size)>0;
+        ; Text
+        !!HE(hero):B0/?(heroName:z);
+        !!SN:T^es.788.battleLog%(subtype)^/?(battleLog:z)/^hero^/(heroName);
+        !!MM:S(battleLog);
+
+        ; Play the sound and animation
+        !!if&(subtype)=0;
+          !!SN:P^WEAKNESS^;
+          !!FU(ES_PlayAnimationOnMultipleStacks):P(affectedStacksList)/56;
+        !!el&(subtype)=1;
+          !!SN:P^DISRUPTR^;
+          !!FU(ES_PlayAnimationOnMultipleStacks):P(affectedStacksList)/14;
+        !!el&(subtype)=2;
+          !!SN:P^CURSE^;
+          !!FU(ES_PlayAnimationOnMultipleStacks):P(affectedStacksList)/40;
+        !!el;
+          !!SN:P^MUCKMIRE^;
+          !!FU(ES_PlayAnimationOnMultipleStacks):P(affectedStacksList)/19;
+        !!en;
+      !!en;
+    !!en;
   !!en;
-!!en;                                   // 
-
-!!FU&y11=0/y12=0/y13=0/y14=0:E;         // выход, если ни одна аура-проклятье не действует
-
-!!if&i^battle_isVisible^;
-  !!FU(Fun_SpellAnimationOnStacks)&y11=1:P-1/?y21; // y21 = слот для массовой анимации Слабости
-  !!FU(Fun_SpellAnimationOnStacks)&y12=1:P-1/?y22; // y22 = слот для массовой анимации Разрушения
-  !!FU(Fun_SpellAnimationOnStacks)&y13=1:P-1/?y23; // y23 = слот для массовой анимации Проклятия
-  !!FU(Fun_SpellAnimationOnStacks)&y14=1:P-1/?y24; // y24 = слот для массовой анимации Медлительности
-!!en;
-
-!!re i/0/41;                            // для всех отрядов Защищающегося
-  !!BMi:N?y3;
-  !!co&y3<1;                            // пропуск пустых отрядов
-
-  !!BMi:A?y3 D?y4 U1/?y5 U2/?y6 S?y7;   // y3/y4/y5/y6/y7 - атака/защита/мин.урон/макс.урон/скорость отряда
-  !!VRy3&y11=1::2;                      // снижение атаки для Слабости
-  !!VRy4&y12=1::2;                      // снижение защиты для Разрушения
-  !!VRy6&y13=1:Sy5;                     // макс. урон снижается до мин.урона для Проклятия
-  !!VRy7&y14=1/y7>1::2;                 // снижение скорости для Медлительности, если скорость больше 1
-
-  !!if&i^battle_isVisible^;
-    !!FU(Fun_SpellAnimationOnStacks)&y11=1:Pi/y21; // добавление отряда в массовую анимацию Слабости
-    !!FU(Fun_SpellAnimationOnStacks)&y12=1:Pi/y22; // добавление отряда в массовую анимацию Разрушения
-    !!FU(Fun_SpellAnimationOnStacks)&y13=1:Pi/y23; // добавление отряда в массовую анимацию Проклятия
-    !!FU(Fun_SpellAnimationOnStacks)&y14=1:Pi/y24; // добавление отряда в массовую анимацию Медлительности
-  !!en;
-
-  !!BMi:Ay3 Dy4 U2/y6 Sy7;              // обновляем параметры отряда
-!!en;                                   // 
-
-!!if&f=0;
-  !!SN&y11=1:W^opt788.a1^/y21;        // выставление флага анимации Слабости
-  !!SN&y12=1:W^opt788.a2^/y22;        // выставление флага анимации Разрушения
-  !!SN&y13=1:W^opt788.a3^/y23;        // выставление флага анимации Проклятия
-  !!SN&y14=1:W^opt788.a4^/y24;        // выставление флага анимации Медлительности
-!!en;
-
-; Play animations
-!!if&i^battle_isVisible^;
-  !!SN:W^opt788.a1^/?y1;                  // y1 - аура Слабости
-
-  !!if&y1<>0;                             // если аура есть
-    !!SN:T^es.788.battleLog^/?z1;
-    !!MM:Sz1;                             // вывод текста в лог битвы
-    !!SN:P^WEAKNESS^;                     // вывод звука слабости
-    !!FU(Fun_SpellAnimationOnStacks):Py1/56/0/1; // проигрывание массовой амимации "Слабость" без анимации урона с очисткой памяти
-  !!en;                                   // 
-
-  !!SN:W^opt788.a2^/?y1;                  // y1 - аура Разрушения
-
-  !!if&y1<>0;                             // если аура есть
-    !!SN:T^es.788.battleLog^/?z1;
-    !!MM:Sz1;                             // вывод текста в лог битвы
-    !!SN:P^DISRUPTR^;                     // вывод звука разрушения
-    !!FU(Fun_SpellAnimationOnStacks):Py1/14/0/1; // проигрывание массовой амимации "Разрушение" без анимации урона с очисткой памяти
-  !!en;                                   // 
-
-  !!SN:W^opt788.a3^/?y1;                  // y1 - аура Проклятия
-
-  !!if&y1<>0;                             // если аура есть
-    !!SN:T^es.788.battleLog^/?z1;
-    !!MM:Sz1;                             // вывод текста в лог битвы
-    !!SN:P^CURSE^;                        // вывод звука проклятия
-    !!FU(Fun_SpellAnimationOnStacks):Py1/40/0/1; // проигрывание массовой амимации "Проклятие" без анимации урона с очисткой памяти
-  !!en;                                   // 
-
-  !!SN:W^opt788.a4^/?y1;                  // y1 - аура Медлительности
-
-  !!if&y1<>0;                             // если аура есть
-    !!SN:T^es.788.battleLog^/?z1;
-    !!MM:Sz1;                             // вывод текста в лог битвы
-    !!SN:P^MUCKMIRE^;                     // вывод звука медлительности
-    !!FU(Fun_SpellAnimationOnStacks):Py1/19/0/1; // проигрывание массовой амимации "Медлительность" без анимации урона с очисткой памяти
-  !!en;                                   // 
 !!en;
 
 ; Set up new specialty campaign carry over for reborn heroes
@@ -560,10 +548,7 @@ ZVSE2
 !!VR(filePath:z):S^Runtime/mortal heroes.ini^;
 
 !!re i/(HERO_FIRST)/(HERO_LAST_WOG);
-  !!if&i^es_788_rebornFlags_%i^<>0;
-    !!VR(packedUnion:y):Si^es_788_rebornFlags_%i^;
-    !!FU(WriteIniInts):P(filePath)/^rebornHero^/^%i^/(packedUnion);
-  !!en;
+  !!FU(WriteIniInts)&i^es_788_rebornFlags_%i^:P(filePath)/^rebornHero^/^%i^/i^es_788_rebornFlags_%i^;
 !!en;
 
 !!FU(SaveIni):P(filePath);
@@ -581,6 +566,9 @@ ZVSE2
   !!FU(UnpackUnion):Pi^es_788_rebornFlags_%(hero)^/?(heroType:y)/2/?(random1:y)/1/?(random2:y)/1/?(subtype:y)/12/?(dummy:y)/16;
   !!VR(heroType):-1;                    [correct hero type from unpacked value]
   !!FU(ES_788_SetUpNewSpecialty):P(hero)/(heroType)/(random1)/(random2)/(subtype);
+
+  ; Save a copy of initial flags to be used when restarting game
+  !!VRi^es_788_rebornFlags_%(hero)_init^:Si^es_788_rebornFlags_%(hero)^;
 !!en;
 
 ; Remove ini OnAfterErmInstructions as there is no OnTransferHero on the victory of the the last zone of a campaign
@@ -592,5 +580,25 @@ ZVSE2
   !!FU(ClearIniCache):P(filePath);
   !!FU(DeleteFile):P(filePath)/?(result);
 !!en;
+
+; Restore initial flags on restarting game
+!?FU(OnGameLeave);
+!!UN:P788/?(wogOption:y);
+!!FU&(wogOption)<>(TRUE):E;
+
+!!SN:F^IsCampaign^;
+!!FU&v1<>(TRUE):E;
+
+; Check if it is a restarting map event
+!!UN:C6911784/4/?(value:y);
+!!FU&(value)<>107:E;
+
+!!VR(filePath:z):S^Runtime/mortal heroes.ini^;
+
+!!re i/(HERO_FIRST)/(HERO_LAST_WOG);
+  !!FU(WriteIniInts)&i^es_788_rebornFlags_%i_init^:P(filePath)/^rebornHero^/^%i^/i^es_788_rebornFlags_%i_init^;
+!!en;
+
+!!FU(SaveIni):P(filePath);
 
 ** end

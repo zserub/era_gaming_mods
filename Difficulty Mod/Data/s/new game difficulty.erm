@@ -1375,6 +1375,15 @@ This Section handels the Dialogue 45 were you can Configure_AI (Right Side)
 !!SN:W^Stack_Size_Mod_L7^/0;            [Lvl 7]
 !!SN:W^Stack_Size_Mod_L8^/0;            [Lvl 8]
 
+; Reset the four options with arrows
+!!VRi^Additionals_troops^:S(FALSE);
+!!VRi^Neutral_stats^:S(FALSE);
+!!VRi^Neutral_exp^:S(FALSE);
+!!VRi^Creature_banks^:S(FALSE);
+
+; Disable Mixed Neutrals
+!!VRi^mix_enabled^:S(FALSE);
+
 !?FU(difm_LoadInitialOptions);
 !!FU(difm_SetDefaultOptions):P;
 
@@ -1422,11 +1431,11 @@ This Section handels the Dialogue 45 were you can Configure_AI (Right Side)
 !!SN&y1=3:W^Battle_Reward^/d15;
 !!SN&y1=4:W^Battle_Reward^/d20;
 
-*!SN:W^Anzahl_Abilities^/?y1;           [Number_of_Abilities]
-*!SN&y1=1:W^Battle_Reward^/d3;
-*!SN&y1=2:W^Battle_Reward^/d10;
-*!SN&y1=3:W^Battle_Reward^/d15;
-*!SN&y1=4:W^Battle_Reward^/d25;
+!!SN:W^Anzahl_Abilities^/?y1;           [Number_of_Abilities]
+!!SN&y1=1:W^Battle_Reward^/d3;
+!!SN&y1=2:W^Battle_Reward^/d10;
+!!SN&y1=3:W^Battle_Reward^/d15;
+!!SN&y1=4:W^Battle_Reward^/d25;
 
 !!SN:W^Stack_Size_Enable^/?y1;
 !!if&y1=1;
@@ -1459,11 +1468,11 @@ This Section handels the Dialogue 45 were you can Configure_AI (Right Side)
 !!en;
 
 !!SN:W^Guarded_Object_Commander_Bonus_HP^/?y1; [Decide difficutly by checking Commander HP in chambers]
-!!SN&y1=150:W^Battle_Reward^/d3;
-!!SN&y1=200:W^Battle_Reward^/d5;
-!!SN&y1=250:W^Battle_Reward^/d7;
-!!SN&y1=400:W^Battle_Reward^/d13;
-!!SN&y1=500:W^Battle_Reward^/d23;
+!!SN&y1=50:W^Battle_Reward^/d3;
+!!SN&y1=75:W^Battle_Reward^/d5;
+!!SN&y1=100:W^Battle_Reward^/d7;
+!!SN&y1=200:W^Battle_Reward^/d13;
+!!SN&y1=400:W^Battle_Reward^/d23;
 
 !!SN:W^Dif_Mod_Neutral_Commander^/?y1;
 !!SN&y1=1:W^Battle_Reward^/d3;
@@ -2057,9 +2066,8 @@ This Section handels the Dialogue 47 were you can Configure Mixed Neutrals
 !!SN:W^Random_Neutral_Hero^/?y6;
 !!UN&y6>0:P72/1;                        [Activate Neutral Hero script]
 
-!!SN:W^Stack_Exp_Rate^/?y8;
-*!UN:P231/?y1;                          [Check Stack Exp option]
-!!UN&y8>0:P231/1;                       [Enable Neutral Stack Experience Option if player made a Stack Exp selection]
+; Enable Neutral Stack Exp option if either Neutral Exp option or Abilities option from Difficulty Mod is enabled
+!!UN|i^Stack_Exp_Rate^>0/i^Anzahl_Abilities^>0:P231/1;                       [Enable Neutral Stack Experience Option if player made a Stack Exp selection]
 
 !!FU(difm_SaveOptionsToIni):P;
 
@@ -2098,6 +2106,7 @@ When clicking on System Icon at Adventure Map run options again
 !!UN:U54/-1/?y2;                        [Number of monsters on the map: y2]
 !!VRv1:S-1;
 !!DO(Diff_Funtion_87)/1/y2/1:P1/2;      [Cycle through all monsters]
+!!FU(H3Quests_RefreshData):P(FALSE);
 !!SN:W^Neutral_Stack_Uptier1^/0;        [Deactivate the Option]
 !!en;
 
@@ -2131,6 +2140,7 @@ When clicking on System Icon at Adventure Map run options again
 !!VRy6&y1=1:S2;
 
 !!DO(Diff_Funtion_87)/1/y2/1:Py5/y6;
+!!FU(H3Quests_RefreshData):P(FALSE);
 
 !!SN:W^Neutral_Stack_Uptier1^/0;
 
@@ -2262,6 +2272,7 @@ Calculate and set increased stack size for neutral units when the combat starts
 
 !?FU(OnBeforeBattleUniversal)&1000;     [Before battle only run for humans]
 
+!!FU&i^mix_enabled^=(TRUE):E;           [Exit if growth is handled by Mixed Neutral Mod]
 !!SN:W^Neutral_Growth_10000^/?y50;
 !!FU&y50=0:E;
 
@@ -2457,52 +2468,110 @@ x1=x-cord, x2=y-cord, x3=z-cord, x4 returns current stack size
 
 !!VRv2&x16=1:S-1;
 !!UN:U54/-1/-1/2;
-!!MOv2/v3/v4:O?y1 R?y40/1;
-!!FU|y1=1/y40=0:E;                      [Exit Set/Check/Get the grow checkbox.]
+
+!!FU(Diff_CheckIfMonIsEligibleToBeRepalced):P2/?(result:y);
+!!FU&(result)<>(TRUE):E;
 
 !!OBv2/v3/v4:U?y2;
+
 !!if&y2>=0/y2<120;
-!!MOv2/v3/v4:G?y3;                      [Check Monster Numbers]
-!!MA:Uy2/?y4;                           [Check if upgradable]
-!!MA:Ly2/?y5;                           [Check Level 0-6]
+  !!MOv2/v3/v4:G?y3;                      [Check Monster Numbers]
+  !!MA:Uy2/?y4;                           [Check if upgradable]
+  !!MA:Ly2/?y5;                           [Check Level 0-6]
 
-!!SN:W^Typhon_Third_Upgrade_Mod_Active^/?y99;
-!!FU&y99=1/y2=118:E; !!FU&y99=1/y2=119:E; !!FU&y99=1/y2=112:E;
-!!if&x1=1;
-!!VRy2&y2=100:S103;                     [Fix for Lizardman]
-!!VRy2&y2=101:S103;                     [Fix for Lizardman]
-!!VRy2&y2=118:S110;                     [Fix for Pixi/Sprite]
-!!VRy2&y2=119:S125;                     [Fix for Pixi/Sprite]
-!!VRy2&y2=112:S113;                     [Fix for Air Element]
-!!VRy2&y2=115:S112;                     [Fix for Water Element]
+  !!if&i^Typhon_Third_Upgrade_Mod_Active^; [Archer30: Why?]
+    !!FU|y2=118/y2=119/y2=112:E;
+  !!en;
+
+  !!if&x1=1;
+    !!VRy2&y2=100:S103;                     [Fix for Lizardman]
+    !!VRy2&y2=101:S103;                     [Fix for Lizardman]
+    !!VRy2&y2=118:S110;                     [Fix for Pixi/Sprite]
+    !!VRy2&y2=119:S125;                     [Fix for Pixi/Sprite]
+    !!VRy2&y2=112:S113;                     [Fix for Air Element]
+    !!VRy2&y2=115:S112;                     [Fix for Water Element]
+  !!en;
+
+  !!if&x1=3;
+    !!VRy2&y2=101:S102; !!VRy2&y2=100:S101; [Fix for Lizardman]
+    !!VRy2&y2=98:S100;  !!VRy2&y2=99:S101;  [Fix for Gnolls]
+    !!VRy2&y2=118:S108; !!VRy2&y2=119:S123; [Fix for Fix for Pixi/Sprite]
+    !!VRy2&y2=112:S111;                     [Fix for Air Element]
+  !!en;
+
+  !!VRy2&y4=-2:+x1;                       [If not upgradable +1 Next Tier]
+  !!VRy2&y4=-1:+x2;                       [If upgradable +2 for Next Tier]
+
+  !!MA:Ly2/?y6;
+
+  !!if&y5<y6/y5<5;
+    !!UN:Ov2/v3/v4/1/0;
+    !!UN:Iv2/v3/v4/54/y2/54/y2/-1/0;
+    !!MOv2/v3/v4:Gy3;
+  !!en;
+
+  !!if&y5=y6;
+    !!VRy2:+1;                              [If not upgradable +1 Next Tier]
+    !!MA:Ly2/?y6;
+
+    !!if&y5<y6/y5<5;
+      !!UN:Ov2/v3/v4/1/0;
+      !!UN:Iv2/v3/v4/54/y2/54/y2/-1/0;
+      !!MOv2/v3/v4:Gy3;
+    !!en;
+  !!en;
 !!en;
 
-!!if&x1=3;
-!!VRy2&y2=101:S102; !!VRy2&y2=100:S101; [Fix for Lizardman]
-!!VRy2&y2=98:S100;  !!VRy2&y2=99:S101;  [Fix for Gnolls]
-!!VRy2&y2=118:S108; !!VRy2&y2=119:S123; [Fix for Fix for Pixi/Sprite]
-!!VRy2&y2=112:S111;                     [Fix for Air Element]
+// Check if the neutral stack is eligible to be replaced (not a special one)
+!?FU(Diff_CheckIfMonIsEligibleToBeRepalced);
+; Check if the neutral stack is eligible to be replaced.
+; Alternative function arguments:
+;  (vIndex)/?(result)
+;  (x)/(y)/(z)/?(result)
+;  The number of arguments can be 2 or 4.
+!#VA(arg1:x);
+!#VA(arg2:x);
+!#VA(arg3:x);
+!#VA(arg4:x);
+
+; Get coordinates depending on the amount of arguments
+!!FU:A?(numArgs:y);
+
+!!if&(numArgs)<3;
+  !!VR(arg2):S(FALSE);
+
+  !!VR(x:y):Sv(arg1);
+  !!VR(yIndex:y):S(arg1) +1;
+  !!VR(y:y):Sv(yIndex);
+  !!VR(zIndex:y):S(yIndex) +1;
+  !!VR(z:y):Sv(zIndex);
+!!el;
+  !!VR(arg4):S(FALSE);
+
+  !!VR(x):S(arg1);
+  !!VR(y):S(arg2);
+  !!VR(z):S(arg3);
 !!en;
 
-!!VRy2&y4=-2:+x1;                       [If not upgradable +1 Next Tier]
-!!VRy2&y4=-1:+x2;                       [If upgradable +2 for Next Tier]
+!!UN:P904/1; [Disable Error Messages]
+!!UN:P905/0; [Initialize error-result flag to 0]
 
-!!MA:Ly2/?y6;
-!!if&y5<y6/y5<5;
-!!UN:Ov2/v3/v4/1/0;
-!!UN:Iv2/v3/v4/54/y2/54/y2/-1/0;
-!!MOv2/v3/v4:Gy3;
-!!en;
+!!MO(x)/(y)/(z):A?(art:y); [Check if monster has an artifact: y3]
 
-!!if&y5=y6;
-!!VRy2:+1;                              [If not upgradable +1 Next Tier]
-!!MA:Ly2/?y6;
-!!if&y5<y6/y5<5;
-!!UN:Ov2/v3/v4/1/0;
-!!UN:Iv2/v3/v4/54/y2/54/y2/-1/0;
-!!MOv2/v3/v4:Gy3;
-!!en;
-!!en;
+!!UN:P905/?(hasError:y) P905/0; [Check if an error occurred: y4=1 if there was an error]
+!!UN:P904/0; [Reenable Error Messages]
+!!FU&(hasError)=0:E; [Skip this monster if NO error occurred (because it has custom setup of text, artifact or resources)]
+
+!!MO(x)/(y)/(z):G?(num:y) O?(noGrow:y); [Check number (y5) and grow/no-grow (y6)]
+!!FU&(num)=1/(noGrow)=1:E; [Skip if only 1 monster and set to not grow]
+
+!!MO(x)/(y)/(z):R?(aggression:y)/1; [Check aggressions: y7]
+!!FU|(aggression)=0/(aggression)=10:E; [Skip if monster set to always join or always fight]
+
+!!if&(numArgs)<3;
+  !!VR(arg2):S(TRUE);
+!!el;
+  !!VR(arg4):S(TRUE);
 !!en;
 ********************************************************************************
 
@@ -2511,7 +2580,7 @@ x1=x-cord, x2=y-cord, x3=z-cord, x4 returns current stack size
 
 
 ********************************************************************************
-!?FU(OnCombatRound)&v997=0/1000;
+!?FU(OnCombatRound)&v997=0/i^battle_human_0^;
 
 !!SN:W^Anzahl_Buffs^/?y1;
 !!FU&y1=0:E;
@@ -2548,9 +2617,120 @@ x1=Spell Number, x2=Duration, x3=Level
 
 
 ********************************************************************************
-!?FU(OnCombatRound)&v997=0/1000;        [Switched to BA from BF because of EA bug overriding HP]
 
+// New implementation by Archer30
+!?FU(OnAfterErmInstructions);
+!!FU(NewIntArray):P90/?i^Anzahl_Abilities_List^/(M_STORED);
+
+!!SN:Vi^Anzahl_Abilities_List^/0/102/68/1/76/29/30/76/29/30/106/16/50;
+!!SN:Vi^Anzahl_Abilities_List^/12/99/78/100/102/70/1/102/99/1/102/82/1;
+!!SN:Vi^Anzahl_Abilities_List^/24/101/61/100/108/114/25/102/98/1/75/15/75;
+!!SN:Vi^Anzahl_Abilities_List^/36/102/115/1/102/66/1/102/65/1/102/69/1;
+!!SN:Vi^Anzahl_Abilities_List^/48/102/114/1/106/15/50/107/15/50/107/21/25;
+!!SN:Vi^Anzahl_Abilities_List^/60/75/50/50/106/52/50/106/45/50/119/109/1;
+!!SN:Vi^Anzahl_Abilities_List^/72/97/74/20/75/17/25/119/69/1/115/30/0;
+!!SN:Vi^Anzahl_Abilities_List^/84/103/37/50/87/43/30;
+
+
+; Only available on BF in this script (new game difficulty.erm)! It looks like there are other EA blocking the functionality of this
+!?FU(OnSetupBattlefield)&i^Anzahl_Abilities^; [Must be later than other scripts setting EA bonuses]
+!!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExpOn:y);
+!!FU&(stackExpOn)<>(TRUE):E;
+
+!!SN:W^Is_Battle_Replay^/?y80;
+!!FU&y80=1:E;                           [Exit in Battle replay]
+
+!!re i/(BATTLE_DEFENDER_STACK_FIRST)/(BATTLE_DEFENDER_STACK_LAST);
+  !!BMi:N?(num:y);
+
+  !!if&(num)>0;
+    !!BMi:I?(side:y);
+
+    !!FU(diff_SetUpStackExpAbilities):Pi/(side);
+  !!en;
+!!en;
+
+!?FU(diff_SetUpStackExpAbilities)&i^Anzahl_Abilities^;
+*?FU(WOG_BattleStack_InitParams)&i^Anzahl_Abilities^;
+!#VA(stackId:x) (side:x);
+
+!!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExpOn:y);
+!!FU&(stackExpOn)<>(TRUE):E;
+
+; Exit if not from the right side, or not neutral fight
+!!FU&(side)<>(BATTLE_RIGHT):E;
+!!FU&i^battle_owner_1^>(NO_PLAYER)/i^wog_72_randHeroActive^<>(TRUE):E;
+
+; Exit if no Monster
+!!BM(stackId):T?(type:y);
+!!FU&(type)<=(NO_MON):E;
+
+; Exit for special monsters
+!!FU|(type)=(MON_NOT_USED_1)/(type)=(MON_NOT_USED_2)/(type)=(MON_NOT_USED_3)/(type)=(MON_NOT_USED_4):E; [Exclue not used]
+!!FU&(type)>=(MON_CATAPULT)/(type)<=(MON_ARROW_TOWERS):E; [Execlude Warmachines]
+!!FU&(type)>=(MON_EMISSARY_OF_WAR)/(type)<=(MON_EMISSARY_OF_LORE):E; [Exlude emmissaries]
+!!FU&(type)>=(MON_COMMANDER_FIRST_A)/(type)<=(MON_COMMANDER_LAST_D):E; [Exclude commanders]
+
+; Exit if there is no available slot
+!!VR(eaStack:y):S(stackId) +1 *-1;
+!!EA(eaStack):F0/?(availSlot:y);
+!!FU&(availSlot)=-1:E;
+
+!!BM(stackId):E?(spells:y);
+!!BM(stackId):U3/?(shots:y);
+
+!!FU(NewIntArray):P?(availAbilitiesList:y);
+
+!!re i/0/29;
+  !!VR(typeIndex:y):Si *3;
+  !!VR(subtypeIndex:y):S(typeIndex) +1;
+
+  !!SN:Mi^Anzahl_Abilities_List^/(typeIndex)/?(type:y) Mi^Anzahl_Abilities_List^/(subtypeIndex)/?(subtype:y);
+
+  ; skip Rebirth if it is too effective
+  !!co&(type)=102/(subtype)=114/(spells)>3;
+
+  ; Skip Melee without Penalty/Shoot Close if the stack can't shoot
+  !!if&(type)=102/(shots)<=0;
+    !!co|(subtype)=69/(subtype)=115;
+  !!en;
+
+  ; Get the slot of the ability, or returned the first empty slot
+  !!EA(eaStack):F(type)/(subtype)/?(slot:y);
+
+  ; If it returend the first empty slot, which means the ability is not avaialble for the given monster, add the ability
+  !!if&(availSlot)=(slot);
+    !!FU(Array_Push):P(availAbilitiesList)/i;
+  !!en;
+!!en;
+
+!!FU(Array_Shuffle):P(availAbilitiesList);
+
+!!re i/1/i^Anzahl_Abilities^;
+  !!SN:M(availAbilitiesList)/?(size:y);
+  !!FU&(size)=0:E;
+
+  !!EA(eaStack):F0/?(availSlot);
+  !!FU&(availSlot)=-1:E;
+
+  !!FU(Array_Pop):P(availAbilitiesList)/?(abilityIndex:y);
+  !!VR(typeIndex):S(abilityIndex) *3;
+  !!VR(subtypeIndex):S(typeIndex) +1;
+  !!VR(valueIndex:y):S(subtypeIndex) +1;
+  !!SN:Mi^Anzahl_Abilities_List^/(typeIndex)/?(type);
+  !!SN:Mi^Anzahl_Abilities_List^/(subtypeIndex)/?(subtype);
+  !!SN:Mi^Anzahl_Abilities_List^/(valueIndex)/?(value:y);
+
+  !!EA(eaStack):B(availSlot)/1/(type)/(subtype)/(value)/(value)/(value)/(value)/(value)/(value)/(value)/(value)/(value)/(value)/(value);
+
+  ; If Rebirth is given, make sure there is at least one spell
+  !!BM(stackId)&(type)=102/(subtype)=114/(spells)<=0:E1;
+!!en;
+
+// Old implementation
+!?FU(OnCombatRound)&v997=0/1000;        [Switched to BA from BF because of EA bug overriding HP]
 !!FU:E;                                 [Disabled because it bugs]
+
 !!SN:W^Anzahl_Abilities^/?y1;
 !!FU&y1=0:E;                            [Exit if Option was not Selected]
 
@@ -2890,7 +3070,17 @@ AI player gets Stronger Commander in battle depending on game difficutly
 
 !!FU&y6>=11:E;                          [Fight the Battle Commander or Not]
 
-!!VRi^Battle_Commander_Type^:S183R8;    [So it only runs for Random Battle Heroes and Chambers]
+!!VRi^Battle_Commander_Type^:S(MON_COMMANDER_FIRST_D) R8;    [So it only runs for Random Battle Heroes and Chambers]
+
+; If random hero is active (WoG Scripts option 72), get the commander type of the neutral hero instead (if commander is active)
+!!if&i^wog_72_randHeroActive^;
+  !!COi^battle_hero_1^:D?y30 E?y31;     [alive and hired]
+
+  !!if&y30=0/y31=1;
+    !!COi^battle_hero_1^:T?y32;         [type - 0 to 8]
+    !!VRi^Battle_Commander_Type^:Sy32 +(MON_COMMANDER_FIRST_D);
+  !!en;
+!!en;
 
 !!SN:T^Diff_Mod.Be_carefull^/?z2;
 !!IF:Q1/(PIC_TYPE_MONSTER)/i^Battle_Commander_Type^/(MSG_TYPE_MES)/^%Z2^;
@@ -2980,19 +3170,19 @@ AI player gets Stronger Commander in battle depending on game difficutly
 !!VRy11:S0R100;
 !!FU&y11>y15:E;                         [Exit if Roll not Successfull]
 
-!!BA:O?y3/?y4;                          [Check Owner Attack and Defender]
-!!HE-10:B0/?z-10;                       [get hero name]
-!!HE-10:E?y6/?y7/1;                     [get level of this hero]
+!!HEi^battle_hero_0^:O?y3;
+!!FU&y3=(NO_OWNER):E;                   [Exit if the attacking hero is killed]
+
+!!HEi^battle_hero_0^:B0/?z-10;          [get hero name]
+!!HEi^battle_hero_0^:E?y6/?y7/1;        [get level of this hero]
 
 !!VRy50:S0R6;                           [Generate range]
-!!VRy50&y15>=55:S0R7;                   [Generate range if Battle Reward chance is bigger 55]
-!!VRy50&y15>=65:S0R8;                   [Generate range if Battle Reward chance is bigger 65]
+!!VRy50&y15>=60:S0R7;                   [Generate range if Battle Reward chance is bigger 60]
+!!VRy50&y15>=75:S0R8;                   [Generate range if Battle Reward chance is bigger 75]
 
 !!VRy51:S0T2;                           [Generate Coinflip to reduce the chance to get an spell or artifact]
 !!FU&y50=7/y51=1:E;                     [66% less chance to get Artifacts or Spells]
 !!FU&y50=8/y51=1:E;
-
-!!if&y3<>-1;                            [Give Reward if Attacking Hero hasn't lost the battle]
 
 **Resources Reward
 !!if&y50=0|y50=1|y50=2;                 [0 and 1 and 2 is Ressource Reward]
@@ -3059,11 +3249,10 @@ AI player gets Stronger Commander in battle depending on game difficutly
   !!UN&y1=2:J6/4/?y2;                   [get a random Minor artifact  1/3 chance]
   !!SN:T^Diff_Mod.Battle Reward5^/?z21 Iz21/?z21;
   !!IF:Q2/8/y2/1^%Z21^;
-  !!HE-10:Ay2;                          [Give Artifact]
+  !!HEi^battle_hero_0^:A4/y2;           [Give Artifact - equip it if possible]
 !!en;
 
 !!UN:R2;                                [Redraw]
-!!en;
 
 ********************************************************************************
 
@@ -3151,27 +3340,35 @@ Gives AI creatures,spellpoints, movement and experience daily
 !!FU(Progressive_Difficulty)&i^timerDay^=y1/y2=1:P; [Run prog increase if option is selected and day equals payday]
 
 !!SN:W^H3_Game_Difficulty^/?y1;
-!!DO(AI_Increase_Loop)/0/155/1&y1>0:P;  [loop through heroes]
+!!FU(AI_Increase_Loop)&y1>0:P;  [loop through heroes]
 
 
 !?FU(AI_Increase_Loop);
+; Get the counter of the day (to determine whether to give creatures)
+!!VRy10:Si^timerDay^ %2;
+!!VRy10&i^H3_Game_Difficulty^=5:S0;
 
-!!HEx16:O?y1;                           [Checke Hero Owner]
-!!FU&y1=-1:E;                           [Exit if none]
-!!OW:Iy1/?y2;                           [AI 1 / Human 0]
-!!OW:Iy1/y2/?y3;                        [Check if player killed 1=killed 0=alive]
-!!FU|y2=0/y3=1:E;                       [Exit if Human or player Killed]
+; Get the level limit of the scenario (to determine whether to give exp)
+!!UN:J1/?y30/d;
+!!VRy30&y30<=0/y30>74:S74;
 
-!!VRy10:Sc;                             [get day]
-!!VRy10:%2;                             [Modulo 2]
-!!SN:W^H3_Game_Difficulty^/?y5;   !!VRy10&y5=5:S0; [If Insane Difficulty Set creature Reward to daily]
+!!re i/(HERO_FIRST)/(HERO_LAST_WOG);
+  !!HEi:O?y1;                           [Checke Hero Owner]
+  !!co&y1=(NO_OWNER);                   [Skip if none]
 
-!!FU(Give_AI_Creatures)&y10=0:Px16/y1;  [Run if AI and still alive und gerader Tag]
-!!FU(Give_AI_Experience):Px16/y1;       [Run if AI and still alive]
-!!FU(Give_AI_Spell_Points):Px16/y1;     [Run if AI and still alive]
-!!FU(Give_AI_Movement):Px16/y1;         [Run if AI and still alive]
-!!FU(Give_AI_Spell_Book):Px16/y1;       [Run if AI and still alive]
+  !!OW:Iy1/?y2;                         [y2, AI 1 / Human 0]
+  !!co&y2=0;                            [Skip if Human]
 
+  !!FU(Give_AI_Creatures)&y10=0:Pi/y1;  [Run if AI and still alive und gerader Tag]
+
+  ; AI heroes will not receive additional exp once they've reached the level limit of the scenario or level 74
+  !!HEi:E?y31/?y32/1;
+  !!FU(Give_AI_Experience)&y32<y30:Pi/y1;[Run if AI]
+
+  !!FU(Give_AI_Spell_Points):Pi/y1;     [Run if AI]
+  !!FU(Give_AI_Movement):Pi/y1;         [Run if AI]
+  !!FU(Give_AI_Spell_Book):Pi/y1;       [Run if AI]
+!!en;
 
 !?FU(Give_AI_Creatures);
 x1=hero, x2=owner
@@ -3209,10 +3406,10 @@ x1=hero, x2=owner
 
 
 !?FU(Give_AI_Experience);
+
 !!SN:W^H3_Game_Difficulty^/?y1;
 !!VRy2&y1=1:S500; !!VRy2&y1=2:S1000; !!VRy2&y1=3:S2500; !!VRy2&y1=4:S5000; !!VRy2&y1=5:S10000;
 !!HEx1:Edy2;                            [Gives Experience daily]
-
 
 !?FU(Give_AI_Spell_Points);
 !!SN:W^H3_Game_Difficulty^/?y1;
@@ -3538,39 +3735,39 @@ AI gets 50% of combat loses recovered
 !!SN:W^Guarded_Object_Faktor^/3;        [*3 multiply factor for guards]
 !!SN:W^Guarded_Object_Commander_Bonus_Att^/3;
 !!SN:W^Guarded_Object_Commander_Bonus_Dmg^/6;
-!!SN:W^Guarded_Object_Commander_Bonus_HP^/75;
+!!SN:W^Guarded_Object_Commander_Bonus_HP^/50;
 !!en;
 
 !!if&x1=2;                              [Normal]
 !!SN:W^Guarded_Object_growth_Rate^/115; [15% Growth Rate]
 !!SN:W^Guarded_Object_Faktor^/3;        [*3 multiply factor for guards]
-!!SN:W^Guarded_Object_Commander_Bonus_Att^/4; [more is better  Att per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Att^/3; [more is better  Att per Week]
 !!SN:W^Guarded_Object_Commander_Bonus_Dmg^/8; [High Dmg per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_HP^/100; [Health per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_HP^/75; [Health per Week]
 !!en;
 
 !!if&x1=3;                              [Hard]
 !!SN:W^Guarded_Object_growth_Rate^/120; [20% Growth Rate]
 !!SN:W^Guarded_Object_Faktor^/4;        [*4 multiply factor for guards]
-!!SN:W^Guarded_Object_Commander_Bonus_Att^/5; [more is better  Att per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Att^/4; [more is better  Att per Week]
 !!SN:W^Guarded_Object_Commander_Bonus_Dmg^/12; [High Dmg per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_HP^/150; [Health per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_HP^/100; [Health per Week]
 !!en;
 
 !!if&x1=4;                              [Extreme]
 !!SN:W^Guarded_Object_growth_Rate^/125; [25% Growth Rate]
 !!SN:W^Guarded_Object_Faktor^/4;        [*4 multiply factor for guards]
-!!SN:W^Guarded_Object_Commander_Bonus_Att^/10; [more is better  Att per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_Dmg^/40; [High Dmg per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_HP^/250; [Health per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Att^/7; [more is better  Att per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Dmg^/30; [High Dmg per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_HP^/200; [Health per Week]
 !!en;
 
 !!if&x1=5;                              [Impossible]
 !!SN:W^Guarded_Object_growth_Rate^/130; [30% Growth Rate]
 !!SN:W^Guarded_Object_Faktor^/5;        [*5 multiply factor for guards]
-!!SN:W^Guarded_Object_Commander_Bonus_Att^/15; [more is better  Att per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_Dmg^/75; [High Dmg per Week]
-!!SN:W^Guarded_Object_Commander_Bonus_HP^/350; [Health per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Att^/10; [more is better  Att per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_Dmg^/60; [High Dmg per Week]
+!!SN:W^Guarded_Object_Commander_Bonus_HP^/400; [Health per Week]
 !!en;
 
 
@@ -3627,9 +3824,7 @@ AI gets 50% of combat loses recovered
 !#SN:W^AI_has_no_DD^/0;
 !#SN:W^AI_Artifacts_Eq^/1;              [Artifact mod is switched on by default]
 
-!#SN:F^PluginExists^/^amethyst2_4^;     [Check for amethyst Plugin, result in v1]
-!#SN&v1=1:W^Typhon_Third_Upgrade_Mod_Active^/1; [Check for Third Upgrade Mod]
-!#SN&v1=1:W^TUM_registerRegularMonsters^/1; [Enable new Third Upgrade Mod Creatures option when mod is active]
+!#VRi^TUM_registerRegularMonsters^&i^Typhon_Third_Upgrade_Mod_Active^:S(TRUE); [Enable new Third Upgrade Mod Creatures option when mod is active]
 
 !?PI;
 !!FU(Game_Difficulty_Options):P;        [Run at Map Start]
@@ -4992,10 +5187,10 @@ w   Spell Immunity  119
     !!BM(defStack):G(SPELL_HYPNOTIZE)/?(duration:y)/?(level:y);
 
     !!if&(duration)<=0;
-      !!BG:Q?(atkSide:y);
+      !!FU(tum_GetActualStackSide):P(atkStack)/?(atkSide:y);
 										  
       ; Check the defender's immunity to Hypnothize
-      !!FU(tum_CheckIfStackCanBeHypnotized):P(defStack)/(SPELL_HYPNOTIZE)/(atkSide)/?(acceptSpell:y);
+      !!FU(tum_CheckIfStackCanBeHypnotized):P(defStack)/(atkSide)/?(acceptSpell:y);
 
       !!if&(acceptSpell);
         ; Check if the total HP of the defender is lower than 20 + 25*(attacker count)
@@ -5034,19 +5229,17 @@ w   Spell Immunity  119
 !!VR(result)|(mon)=274/(mon)=282:S(TRUE);
 
 !?FU(tum_CheckIfStackCanBeHypnotized)&i^Exp_TUM_Abilities^/i^tum_reborn^<>(TRUE);
-!#VA(stackId:x) (spellId:x) (castingSide:x) (result:x);
+!#VA(stackId:x) (castingSide:x) (result:x);
+
+!!VR(spellId:y):S(SPELL_HYPNOTIZE);
 
 ; Get the offset of the power address
 !!UN:C(COMBAT_MANAGER)/(UNC_INT)/?(combatManager:y);
 !!VR(offset:y):S(castingSide) *(UNC_INT) +21460;
 
-; Set the power to max (value depending on whether Prima is loaded)
+; Set the power to max
 !!UN:C(combatManager)/(offset)/(UNC_INT)/?(power:y);
-
-!!VR(newPower:y):S127;
-!!SN:F^PluginExists^/^Prima^;
-!!VR(newPower:y)&v1:S249;
-
+!!VR(newPower:y):S2000000;
 !!UN:C(combatManager)/(offset)/(UNC_INT)/(newPower);
 
 ; Check if the stack can receive Hypnotize with the new power
@@ -5054,6 +5247,12 @@ w   Spell Immunity  119
 
 ; Restore the power
 !!UN:C(combatManager)/(offset)/(UNC_INT)/(power);
+
+!?FU(tum_GetActualStackSide)&i^tum_reborn^<>(TRUE);
+!#VA(stack:x) (side:x);
+
+!!BM(stack):I?(side) G(SPELL_HYPNOTIZE)/?(hypnotizeTurns:y)/d;
+!!VR(side)&(hypnotizeTurns)>0:X(TRUE);
 
 ****************************************************************************************************
 
@@ -5243,13 +5442,44 @@ Exp_Health_Set
 !!DL:C1;
 
 
-**** disable unecessary right-click msg on system option if diff mod is enabled - Archer
-
+// disable the unecessary right-click msg on system option if diff mod is enabled by Archer30
 !?FU(OnAdventureMapRightMouseClick);
 !!CM:I?(location:y);                    [clicked location]
-!!UN:J8/1/^Difficulty Mod.pac^;         [check if diff mod is enabled]
-!!CM&(location)=10/1:R0;                [disable right-click standard action on system option if true]
 
+!!if&(location)=10;
+  !!UN:J8/1/^Difficulty Mod.pac^;       [check if diff mod is enabled]
+  !!CM&1:R0;                            [disable right-click standard action on system option if true]
+!!en;
+
+
+// Manage the growth of Perry's CB template by Archer30
+!?FU(OnEveryDay)&i^timerDay^=1/i^timerOnce^;
+!!UN:P235/?(bankGrowth:y);
+
+!!re i/0/99;                            [99 - the max number to loop, currently TUM has 62 banks, this should be enough for a while]
+  !!if&i<10;
+    !!VR(indexStr:z):S^00%i^;
+  !!el&i>=10/i<100;
+    !!VR(indexStr):S^0%i^;
+  !!en;
+
+  // At least 8% growth if revisiting is possible
+  ; If Difficulty mod is enabled, set the growth to the value in Diff mod
+  !!if&(bankGrowth);
+    !!VR(growth:y):S8;
+
+    ; variable from Difficulty mod
+    !!if&i^Guarded_Object_growth_Rate^>100;
+      !!VR(growth):Si^Guarded_Object_growth_Rate^ -100 *5 :6;
+    !!en;
+
+    !!VRi^CB_%(indexStr)_Custom_Growth^:S(growth);
+  // Disable revisiting if CB growth wog option is disabled
+  ; 7 - to prevent affecting dwelling banks from TUM. They will be reset no matter what
+  !!el;
+    !!VRi^CB_%(indexStr)_Revisit^&i^CB_%(indexStr)_Revisit^>7:S0;
+  !!en;
+!!en;
 
 ****************************************************************************************************
 
@@ -5264,9 +5494,8 @@ Exp_Health_Set
 
 *#SN:W^Legacy_of_the_Silence_Active^/1;  [Set Mod Active] Test
 
-!?FU(OnCombatRound)&v997=0;
+!?FU(OnCombatRound)&v997=0/i^Is_Raid_Boss_Fight^=0;
 AI neutral players or heroes gets Stronger Commander in battle
-
 !!SN:W^Dif_Mod_Neutral_Commander^/?y1;
 !!FU&y1=0:E;                            [Exit if Mod was disabled in options]
 
@@ -5290,16 +5519,15 @@ AI neutral players or heroes gets Stronger Commander in battle
 !!FU|y13<30/y16<1:E;                    [Exit if no commander found]
 
 !!BA:O?y1/?y2;                          [Get Owner]
-!!OW:Iy2/?y2;                           [Get if AI or Human]
-!!if&y2=0;                              [if neutral AI]
+!!if&y2=-1;                             [if neutral AI]
  !!re i/21/41;                          [loop defender stacks]
   !!BMi:T?y3 P?y4;                      [Get Creature Type and Position]
     !!if&y3>=183/y3<=191/y4=98;         [If Commander at position 98 found]
       !!VRy20:S20R100; !!VRy10:*y20:100; !!BMi:Ay10; [Set Attack]
       !!VRy20:S20R100; !!VRy11:*y20:100; !!BMi:Dy11; [Set Defense]
-      !!VRy20:S20R90; !!VRy13:*y20:100; !!BMi:Hy13; [Set Health]
-      !!VRy20:S20R110; !!VRy14:*y20:100; !!VRy15:*y20:100; !!BMi:U1/y14 U2/y15; [Set Min+Max Damage]
-      !!VRy20:S20R60; !!VRy16:*y20:100+1; !!VRy16&y16<4:S4; !!BMi:Sy16; [Set Speed 4 is minimum speed]
+      !!VRy20:S30R110; !!VRy13:*y20:100; !!BMi:Hy13; [Set Health]
+      !!VRy20:S30R110; !!VRy14:*y20:100; !!VRy15:*y20:100; !!BMi:U1/y14 U2/y15; [Set Min+Max Damage]
+      !!VRy20:S30R60; !!VRy16:*y20:100+1; !!VRy16&y16<4:S4; !!BMi:Sy16; [Set Speed 4 is minimum speed]
     !!en;
  !!en;
 !!en;

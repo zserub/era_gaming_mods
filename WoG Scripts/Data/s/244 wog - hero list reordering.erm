@@ -13,7 +13,7 @@ ZVSE2
 !#DC(WOG_OPT_HERO_LIST_REORDERING) = 244;
 
 
-!?FU(OnAdventureMapLeftMouseClick)&999/i^mouse_action^=(MOUSE_LMB_PRESSED);/i^wog_hdMod_enabled^=(TRUE);
+!?FU(OnAdventureMapLeftMouseClick)&999/i^mouse_action^=(MOUSE_LMB_PRESSED);/i^wog_hdMod_on^;
 !!UN:P(WOG_OPT_HERO_LIST_REORDERING)/?(wogOption:y);  
 !!FU&(wogOption)<>(TRUE):E;
 
@@ -51,7 +51,7 @@ ZVSE2
     !!FU:E;
   !!en;
 
-!!el&i^mouse_item^>32/i^mouse_item^<=36;
+!!el&i^mouse_item^>32/i^mouse_item^<=36; towns listing
   !!VR(itemID:y):Si^mouse_item^-32; 
 
   !!if&i^key_alt^;

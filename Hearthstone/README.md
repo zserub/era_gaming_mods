@@ -1,0 +1,7 @@
+# Hearthstone
+
+Author: Metaphysix
+Platform: ERA 3
+Version: v1.0
+
+Recall to any allied town for free.

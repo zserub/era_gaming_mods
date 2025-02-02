@@ -37,32 +37,32 @@ ZVSE2
 !#UN:P(WOG_OPT_ENHANCED_WAR_MACHINES_II)/?i^wog_55_enabled^; [check if Enhanced Warmachines is enabled in WoGify Options]
 
 !?FU(OnAfterErmInstructions)&i^wog_55_enabled^;
-  !!MA:M(MON_BALLISTA)/4 E(MON_BALLISTA)/6 C(MON_BALLISTA)/(RES_GOLD)/1000; [Ballista Dam Low 4/ Dam High 6/ Cost 1000]
-  !!MA:P(MON_FIRST_AID_TENT)/150 C(MON_FIRST_AID_TENT)/(RES_GOLD)/1000; [First Aid Tent HP 150/ Cost 1000]
-  !!MA:P(MON_AMMO_CART)/150 C(MON_AMMO_CART)/(RES_GOLD)/1000; [Ammo Cart HP 150/Cost 1000]
+!!MA:M(MON_BALLISTA)/4 E(MON_BALLISTA)/6 C(MON_BALLISTA)/(RES_GOLD)/1000; [Ballista Dam Low 4/ Dam High 6/ Cost 1000]
+!!MA:P(MON_FIRST_AID_TENT)/150 C(MON_FIRST_AID_TENT)/(RES_GOLD)/1000; [First Aid Tent HP 150/ Cost 1000]
+!!MA:P(MON_AMMO_CART)/150 C(MON_AMMO_CART)/(RES_GOLD)/1000; [Ammo Cart HP 150/Cost 1000]
 
-  !!SN:H^monname^/(MON_CATAPULT)/0/?(single:z) H^monname^/(MON_CATAPULT)/1/?(plural:z);
-  !!SN:H^monname^/(MON_NOT_USED_2)/0/(single) H^monname^/(MON_NOT_USED_2)/1/(plural);
+!!SN:H^monname^/(MON_CATAPULT)/0/?(single:z) H^monname^/(MON_CATAPULT)/1/?(plural:z);
+!!SN:H^monname^/(MON_NOT_USED_2)/0/(single) H^monname^/(MON_NOT_USED_2)/1/(plural);
 
-  ; Set up flags for Catapult in non-siege
-  !!MA:X(MON_NOT_USED_2)/132133 F(MON_NOT_USED_2)/650 C(MON_NOT_USED_2)/(RES_GOLD)/1000; [set NU2 flags {catapult flags (132197) + shooter (4)}    NU2 Fight Value 650  ]
-  !!MA:A(MON_NOT_USED_2)/10 D(MON_NOT_USED_2)/10 P(MON_NOT_USED_2)/250 N(MON_NOT_USED_2)/24; [NU2 Attack 10 NU2 Defense 10 NU2 HP 250  NU2 Shots 24]
+; Set up flags for Catapult in non-siege
+!!MA:X(MON_NOT_USED_2)/132197 F(MON_NOT_USED_2)/650 C(MON_NOT_USED_2)/(RES_GOLD)/1000; [set NU2 flags {catapult flags (132197) + shooter (4)}    NU2 Fight Value 650  ]
+!!MA:A(MON_NOT_USED_2)/10 D(MON_NOT_USED_2)/10 P(MON_NOT_USED_2)/250 N(MON_NOT_USED_2)/24; [NU2 Attack 10 NU2 Defense 10 NU2 HP 250  NU2 Shots 24]
 
-  ; creature descriptions
-  !!SN:H^monname^/(MON_CATAPULT)/2/z155002 H^monname^/(MON_FIRST_AID_TENT)/2/z155003 H^monname^/(MON_AMMO_CART)/2/z155004;
+; creature descriptions
+!!SN:H^monname^/(MON_CATAPULT)/2/z155002 H^monname^/(MON_FIRST_AID_TENT)/2/z155003 H^monname^/(MON_AMMO_CART)/2/z155004;
 
-  ; Stack exp abilities
-  !!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExp:y); [check if creature experience is enabled]
-  !!UN:P(WOG_OPT_ENHANCED_MONSTERS)/?(enhancedMon:y); [Check if Enhanced Monsters is enabled in WoGify Options]
+; Stack exp abilities
+!!UN:P(WOG_OPT_STACK_EXPERIENCE)/?(stackExp:y); [check if creature experience is enabled]
+!!UN:P(WOG_OPT_ENHANCED_MONSTERS)/?(enhancedMon:y); [Check if Enhanced Monsters is enabled in WoGify Options]
 
-  !!if&(stackExp)/(enhancedMon);
-    !!EA(MON_NOT_USED_2):O(MON_CATAPULT);
+!!if&(stackExp)/(enhancedMon);
+  !!EA(MON_NOT_USED_2):O(MON_CATAPULT);
 
-    !!EA(MON_NOT_USED_2):F105/?(availSlot:y); [NU2 (catapult) - get bonus line index]
-    !!EA(MON_NOT_USED_2):B(availSlot)/1/105/61/1/1/1/1/1/1/1/1/1/1/1; [set no range penalty]
-    !!EA(MON_NOT_USED_2):F98/?(availSlot); [NU2 (catapult) - get bonus line index]
-    !!EA(MON_NOT_USED_2):B(availSlot)/1/98/61/50/50/50/50/50/50/50/50/50/50/50; [set ignore defense to 50%]
-  !!en;
+  !!EA(MON_NOT_USED_2):F105/?(availSlot:y); [NU2 (catapult) - get bonus line index]
+  !!EA(MON_NOT_USED_2):B(availSlot)/1/105/61/1/1/1/1/1/1/1/1/1/1/1; [set no range penalty]
+  !!EA(MON_NOT_USED_2):F98/?(availSlot); [NU2 (catapult) - get bonus line index]
+  !!EA(MON_NOT_USED_2):B(availSlot)/1/98/61/50/50/50/50/50/50/50/50/50/50/50; [set ignore defense to 50%]
+!!en;
 
 ; Restrain war machine quantity of commanders
 !?FU(WOG_OnNpcPlacesWarMachine)&i^wog_55_enabled^;
@@ -132,10 +132,9 @@ ZVSE2
 !!en;
 
 ; Change catapult ID to 124 - Must be after Tactics Phase due to HD mod compatibility
-; Must remove Siege Weapon flag, otherwise Spellbinder's Hat would be removed when the catapult is destroyed
 !?FU(OnAfterTacticsPhase)&i^wog_55_enabled^;
 !!re i/(BATTLE_LEFT)/(BATTLE_RIGHT);
-  !!BMi^wog_55_catapult_%i^&i^wog_55_catapult_%i^>(NO_STACK):T(MON_NOT_USED_2) Fd~(MON_FLAG_SIEGE_WEAPON);
+  !!BMi^wog_55_catapult_%i^&i^wog_55_catapult_%i^>(NO_STACK):T(MON_NOT_USED_2);
 !!en;
 
 !?FU(OnAfterBattleUniversal)&i^wog_55_enabled^;
@@ -172,7 +171,7 @@ ZVSE2
       !!BMi^battle_current_stack^:N?(tentsAmount:y); 
 
       !!re i/1/(tentsAmount);
-        !!VR(healPower:y):S1 R24 *(skillLvL) +(defense); [set healing: 1-25 x (first aid skill +1) +defense x # of tents]
+        !!VR(healPower:y):R0/1/25 *(skillLvL) +(defense); [set healing: 1-25 x (first aid skill +1) +defense x # of tents]
         !!VRi^WOG_55_Battle_HealPower^:+(healPower);
       !!en;
     !!en;
@@ -259,9 +258,10 @@ ZVSE2
 
   !!re i/(min)/(max);
     !!BMi:F?f N?n;
-    !!VRf:&(MON_FLAG_DIED);
+    !!VR(hasDied:y):Sf &(MON_FLAG_DIED);
+    !!VR(isWM:y):Sf &(MON_FLAG_SIEGE_WEAPON);
 
-    !!if&f=0/n>0;
+    !!if&(hasDied)=0/(isWM)=0/n>0;
       !!BMi:B?s H?h L?l;
       !!VR(minLoses:y):Ss -n*h +l Fd/(INT_MAX);
 
@@ -357,27 +357,42 @@ ZVSE2
   !!VR(stackId):S(side)*21 +(index);
 
 !?FU(WOG_55_BattleFunc_CalculateStackHealing);
-!#VA(stack:x) (healPower:x) (hpLost:x) (num:x);
+!#VA(stack:x) (regenHp:x) (newLostHp:x) (newNum:x);
 
-  !!BM(stack):H?(maxHp:y) L?(hpLost) B?(initNum:y) N?(num);
+; Calculations
+!!BM(stack):H?(hp:y) L?(lostHp:y) N?(num:y) B?(initNum:y);
 
-  !!if&(initNum)>(num);
+!!VR(totalCurrHp:y):S(hp) *(num) -(lostHp);
+!!VR(totalInitHp:y):S(hp) *(initNum);
 
-    !!if&(healPower)>(hpLost);
+; Exit if it overflows or nothing to heal
+!!if|(totalCurrHp)<=0/(totalInitHp)<=0/(totalInitHp)<=(totalCurrHp);
+  !!VR(newLostHp):S(lostHp);
+  !!VR(newNum):S(num);
+  !!FU:E;
+!!en;
 
-      !!VR(qtyToResurrect:y):S(healPower) +(maxHp) -(hpLost) :(maxHp); -1;
-      !!VR(hpLost):S(healPower) +(maxHp) %(maxHp);
+!!VR(totalLostHp:y):S(totalInitHp) -(totalCurrHp);
+!!VR(totalNewHp:y):S(totalCurrHp) +(regenHp);
 
-      !!if&(qtyToResurrect);
-        !!VR(num):+(qtyToResurrect);
-        !!VR(num)&(num)>(initNum):S(initNum);
-      !!en;
-    !!el;
-      !!VR(hpLost):-(healPower);
-    !!en;
+; Fix overflows
+!!VR(totalNewHp)&(totalNewHp)<(totalCurrHp):S(totalInitHp);
+; Deal with overheal
+!!if&(totalNewHp)>(totalInitHp);
+  !!VR(overhealHp:y):S(totalNewHp) -(totalInitHp);
+  !!VR(totalNewHp):S(totalInitHp);
+!!en;
 
-  !!el;
-    !!VR(hpLost):-(healPower);
-    !!VR(hpLost)&(hpLost)<0:S0;
-  !!en;
+; Calculate new stats
+!!VR(newNum):S(totalNewHp) :(hp);
+!!VR(newCurrHp:y):S(totalNewHp) %(hp);
+
+!!if&(newCurrHp)=0;
+  !!VR(newCurrHp):S(hp);
+!!el;
+  !!VR(newNum):+1;
+!!en;
+
+!!VR(newLostHp):S(hp) -(newCurrHp);
+
 **** End of First Aid Tents healing ****

@@ -7,15 +7,13 @@ Troops in human-player battles receive experience and new ranks directly in the 
 Experience is awarded only for killing enemy units of creatures (in any way) and only the one who's killed a troop. A unit that was the direct target of attack gets experience for all losses related to this attack. Typically more experience is gained with the use of multicellular attacks, fire shield, fire wall, moat, mines, etc.
 
 Summoned creatures do not gain experience. Also defeating clones doesn't give you any experience. Banners with a bonus to experience gives rise to the corresponding increase.
-
-AI units receive standard experience bonus depending on the level of difficulty selected.
 Size-limited Cities	-1	7	1	-1	0	0	780	Size-limited Cities	Size-limited Cities	Size-limited Cities
 
 Option 780 [Author - Algor]
 
 Limits the number of creatures available for hire in towns (3* normalgrowth). Creature growth over this limit will be lost.
 
-Horde buildings that increase the limit of the corresponding creatures (Grail, external dwellings and "legion artifacts") the limit no onger increases.
+Horde buildings that increase the limit of the corresponding creatures (Grail, external dwellings and "legion artifacts") the limit no longer increases.
 
 If option 785 "Peons" is enabled, then for AI 20/25/33/50/100% of the extra creatures (depending on the level of difficulty) become peons.
 AI Behavior Correction	-1	7	1	-1	0	0	823	AI Behavior Correction	AI Behavior Correction	AI Behavior Correction

@@ -68,23 +68,24 @@ WoGify ERM code: 101 (0-5) plus 111-130 (0-1) for individual rules
 
 
 ** function to only take effect at start ALL of them works for all players - function call is :P :D;
+; Daily events now starts from the second day only - same mechanism as the original H3
 !?FU(WOG_101_RunMapRulesOnce);
   !!FU(WOG_101_BuildGrailsInTowns)&i^wog_101_map_rule_19_isEnabled^:P;           [build grails in towns - executed once]
-  !!FU(WOG_101_UpgradeTo8thLvl)&i^wog_101_map_rule_14_isEnabled^:P;              [upgrades creatures - executed every day needed for the first player turn]
+  *!FU(WOG_101_UpgradeTo8thLvl)&i^wog_101_map_rule_14_isEnabled^:P;              [upgrades creatures - executed every day needed for the first player turn]
   !!FU(WOG_101_SetDoubledHeroesMovements)&i^wog_101_map_rule_10_isEnabled^:P;    [executed once - needed for the first player turn]
   !!FU(WOG_101_PlaceWarlordsBanner)&i^wog_101_map_rule_20_isEnabled^:P;          [executed once]
   !!FU(WOG_101_SetHeroes5thLevel)&i^wog_101_map_rule_7_isEnabled^:P;             [executed once]
   !!FU(WOG_101_AllowMultiplyCapitols)&i^wog_101_map_rule_13_isEnabled^:P;        [executed once]
   !!FU(WOG_101_AddBoarsOrAirElemsToDwells)&i^wog_101_map_rule_6_isEnabled^:P;    [executed once]
   !!FU(WOG_101_SetDoubledArtifacts)&i^wog_101_map_rule_8_isEnabled^:P;           [executed once]
-  !!FU(WOG_101_PlaceMagicPlains)&i^wog_101_map_rule_3_isEnabled^:Pi^timerOwner^; [executed every day - needed for the first player turn]
+  *!FU(WOG_101_PlaceMagicPlains)&i^wog_101_map_rule_3_isEnabled^:Pi^timerOwner^; [executed every day - needed for the first player turn]
   !!FU(WOG_101_SetUpMonsters):P;                                                 [executed once]
   !!FU(WOG_101_HideMapInitPlayer)&i^wog_101_map_rule_9_isEnabled^:P;
 
 
 
 
-!?FU(OnEveryDay)&i^timerDay^<>1;
+!?FU(OnEveryDay)&i^timerDay^>1;
 
   !!FU(WOG_101_SetMonstersHalfPrice)&i^wog_101_map_rule_2_isEnabled^:P D;
   !!FU(WOG_101_PlaceMagicPlains)&i^wog_101_map_rule_3_isEnabled^:Pi^timerOwner^ Di^timerOwner^;
@@ -487,8 +488,8 @@ WoGify ERM code: 101 (0-5) plus 111-130 (0-1) for individual rules
 
 !!UN:P904/0; // enable  WOG error messages again
 
-!!UN:Ay1/=0;
-!!FU&-1:E; // exit, if not enabled
+*!UN:Ay1/=0;
+*!FU&-1:E; // exit, if not enabled - Archer30: This is not needed at all
 
 !!HE-1:A2/y1/?y2/?y3; [get y2 number carried y3 number equipped]
 !!HE-1&y2<2:Ay1; [give an extra copy if they don't already have one (<2, because the found artifact is given already to the hero in the after trigger]
@@ -652,82 +653,48 @@ EveryDays Routine
 ** Object triggers for Rogue fights
 
 !?OB12; [campfire]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-**; !?OB17; [most creature dwellings]
-**; !!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB29; [flotsam]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB32; [garden of revelation]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB39; [lean to]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB47; [school of magic]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB51; [mercenary camp]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB53; [mine]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB55; [mystical garden]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB57; [obelisk]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB58; [redwood observatory]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB60; [pillar of fire]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB61; [star axis]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB79; [resource]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB82; [sea chest]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB88; [shrine of magic incantation]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB94; [stables]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB100; [learning stone]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB101; [treasure chest]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB102; [tree of knowledge]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB104; [university]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB105; [wagon]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB107; [school of war]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB109; [water wheel]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 !?OB112; [windmill]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
-
-!?OB113; [witch hut]
-!!FU(WOG_101_RoguesAmbush):P; [handle generating roving bands of Rogues]
+!!FU(WOG_101_RoguesAmbush):P?(owner:y); [handle generating roving bands of Rogues]
+!!SN&(owner)=(NO_OWNER):Q;
 
 ** end of set of object triggers
 
@@ -735,12 +702,14 @@ EveryDays Routine
 ** function to generate roving bands of Rogues
 
 !?FU(WOG_101_RoguesAmbush)&i^wog_101_map_rule_16_isEnabled^/i^timerDay^<>i^wog_127_lastRogueDate_%i(timerOwner)^;
-; Check if the option is enabled (use only this way as the option can be enabled at the map start)
+!#VA(owner:x);
+
+  !!VR(owner):S8;                       [Initialisation. Do not initialise it to NO_OWNER as it triggers SN:Q by default!]
 
   !!if&i^timerIsHuman^;
-    !!VR(random:y):S0 R15; [1 in 16 chance for human]
+    !!VR(random:y):S0 R31; [1 in 32 chance for human]
   !!el;
-    !!VR(random):S0 R63; [1 in 64 chance for AI]
+    !!VR(random):S0 R31; [1 in 32 chance for AI]
   !!en;
 
   !!IF:V875/0;
@@ -765,11 +734,11 @@ EveryDays Routine
       !!en;
     !!en;
 
-    !!VR(rogueNum:y):Si^timerWeek^ *16; [16 Rogues per elapsed week]
+    !!VR(rogueNum:y):Si^timerWeek^ *15; [15 Rogues per elapsed week]
 
 
     !!HE(hero):Ed/?(lv:y)/1; [get hero level]
-    !!VR(rogueNum):S(lv) *4 +(rogueNum); [#Rogues = 16*week + 4*level]
+    !!VR(rogueNum):S(lv) *5 +(rogueNum); [#Rogues = 15*week + 5*level]
 
     !!IF:V875/1;           (For mithril and chest scripts)
     *!UN:C(ADV_MANAGER)/4/?(advMgr:y);
@@ -788,11 +757,11 @@ EveryDays Routine
       *!VRi^battle_hero_1^:S(NO_HERO);
 
     !!HE(hero):Tv998/v999/v1000/(mon)/(rogueNum); [provoke Rogue battle]
-    !!HE(hero:y):O?(owner:y); [get hero owner]
+    !!HE(hero:y):O?(owner); [get hero owner]
 
     !!if&(owner)<>(NO_OWNER);
       !!if&(terrain)<>8;
-        !!VR(gold:y):S(rogueNum) *20 +200; [10 gold per Rogue + 300]
+        !!VR(gold:y):S(rogueNum) *20 +200; [20 gold per Rogue + 200]
         !!OW:R(owner)/(RES_GOLD)/d(gold); [give gold if hero lived]
         !!IF&i^timerIsHuman^:Q2/(PIC_TYPE_RES_GOLD)/(gold)/(MSG_TYPE_MES)/^%T(wog.127.treasure)^;
       !!en;
@@ -805,7 +774,7 @@ EveryDays Routine
 
 ** end of function
 
-** function to upgraid all lvl 7 monsters
+** function to upgrade all lvl 7 monsters
 !?FU(WOG_101_UpgradeTo8thLvl);
   !#VA(monsToUpgrade[9]:y);
   !#VA(monsIntoUpgrade[9]:y);

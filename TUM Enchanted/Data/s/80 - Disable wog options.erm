@@ -1,0 +1,40 @@
+ZVSE2
+
+**This file runs before all WoG options making sure they are disabled and not something inbetween**
+
+!?FU(TUMEnchanted_DisableWoGOptions);
+
+!!UN:P050/0; [Enhanced Monsters]
+!!UN:P046/0; [Berserker Flies]
+!!UN:P059/0; [Piercing Shoot]
+!!UN:P037/0; [Rebalanced Faction - Creatures]
+!!UN:P188/0; [Rampart Fearie Dragon]
+!!UN:P189/0; [Reduce Firebird/Phoenix Growth]
+
+!!UN:P821/0; [Non Neutral]
+!!UN:P789/0; [Critical Sorcery, for conflict with AmeEdit]
+!!UN:P777/0; [Enhanced Resistence, for conflict with AmeEdit]
+
+!!UN:P822/0; [Disable Sharpshooter and Wraith Block]
+!!UN:P997/0; [Disable Grand Manouver]
+!!UN:P995/0; [Disable Ranged Death Stare]
+!!UN:P996/0; [Disable Gnoll Marauders Strike First]
+!!UN:P758/0; [Disable Cutthroats]
+!!UN:P750/0; [Disable Demonic Rage]
+!!UN:P759/0; [Disable Devilish Sacrifice]
+!!UN:P753/0; [Disable Stunning Boar]
+!!UN:P761/0; [Disable Battle Dwarves Reinforcement]
+!!UN:P741/0; [Disable War Zealot Interceptor
+!!UN:P752/0; [Disable Evading Halfling]
+!!UN:P350/0; [Disable Lizard Warrior Ranged Retaliation]
+
+!!UN:P762/0; [Disable Zombie-Fleasheater for now to avoid zombie name change. It will be activated on GameEnter]
+
+**
+
+!#FU(acm_DisableWoGOptions):P;
+
+!?FU(OnAfterErmInstructions);
+!!FU(TUMEnchanted_DisableWoGOptions):P;
+
+********************************************************************************

@@ -1,0 +1,285 @@
+
+
+
+	#	209	-1	-1	696	536	149	-1		500
+	Def	400	40	22	614	477	seerhcdr.def	0	16	
+	Def	1	46	25	24	28	serscdr.def	3	16	Seer's name
+	Text	49	74	34	88	24		Verd10b.fnt	7	0	0	8	Name
+	Text	401	48	412	600	80		SmalFont.fnt	7	0	1	8	Description
+	Text	500	40	512	608	24		SmalFont.fnt	7	0	1	8	
+	Def	2	46	57	24	28	serscdr.def	3	16	Seer's name
+	Def	3	46	89	24	28	serscdr.def	3	16	Seer's name
+	Def	4	46	121	24	28	serscdr.def	3	16	Seer's name
+	Def	5	46	153	24	28	serscdr.def	3	16	Seer's name
+	Def	7	46	217	24	28	serscdr.def	3	16	Seer's name
+	Def	8	46	249	24	28	serscdr.def	3	16	Seer's name
+	Def	9	46	281	24	28	serscdr.def	3	16	Seer's name
+	Def	10	46	313	24	28	serscdr.def	3	16	Seer's name
+	Def	11	46	345	24	28	serscdr.def	3	16	Seer's name
+	Def	12	46	377	24	28	serscdr.def	3	16	Seer's name
+	Def	13	198	25	24	28	serscdr.def	3	16	Seer's name
+	Def	14	198	57	24	28	serscdr.def	3	16	Seer's name
+	Def	15	198	89	24	28	serscdr.def	3	16	Seer's name
+	Def	16	198	121	24	28	serscdr.def	3	16	Seer's name
+	Def	17	198	153	24	28	serscdr.def	3	16	Seer's name
+	Def	18	198	185	24	28	serscdr.def	3	16	Seer's name
+	Def	19	198	217	24	28	serscdr.def	3	16	Seer's name
+	Def	20	198	249	24	28	serscdr.def	3	16	Seer's name
+	Def	21	198	281	24	28	serscdr.def	3	16	Seer's name
+	Def	22	198	313	24	28	serscdr.def	3	16	Seer's name
+	Def	23	198	345	24	28	serscdr.def	3	16	Seer's name
+	Def	24	198	377	24	28	serscdr.def	3	16	Seer's name
+	Def	25	350	25	24	28	serscdr.def	3	16	Seer's name
+	Def	26	350	57	24	28	serscdr.def	3	16	Seer's name
+	Def	27	350	89	24	28	serscdr.def	3	16	Seer's name
+	Def	28	350	121	24	28	serscdr.def	3	16	Seer's name
+	Def	29	350	153	24	28	serscdr.def	3	16	Seer's name
+	Def	30	350	185	24	28	serscdr.def	3	16	Seer's name
+	Def	31	350	217	24	28	serscdr.def	3	16	Seer's name
+	Def	32	350	249	24	28	serscdr.def	3	16	Seer's name
+	Def	33	350	281	24	28	serscdr.def	3	16	Seer's name
+	Def	34	350	313	24	28	serscdr.def	3	16	Seer's name
+	Def	35	350	345	24	28	serscdr.def	3	16	Seer's name
+	Def	36	350	377	24	28	serscdr.def	3	16	Seer's name
+	Def	37	504	25	24	28	serscdr.def	3	16	Seer's name
+	Def	38	504	57	24	28	serscdr.def	3	16	Seer's name
+	Def	39	504	89	24	28	serscdr.def	3	16	Seer's name
+	Def	40	504	121	24	28	serscdr.def	3	16	Seer's name
+	Def	41	504	153	24	28	serscdr.def	3	16	Seer's name
+	Def	42	504	185	24	28	serscdr.def	3	16	Seer's name
+	Def	43	504	217	24	28	serscdr.def	3	16	Seer's name
+	Def	44	504	249	24	28	serscdr.def	3	16	Seer's name
+	Def	45	504	281	24	28	serscdr.def	3	16	Seer's name
+	Def	46	504	313	24	28	serscdr.def	3	16	Seer's name
+	Def	47	504	345	24	28	serscdr.def	3	16	Seer's name
+	Def	48	504	377	24	28	serscdr.def	3	16	Seer's name
+	Text	50	74	66	88	24		Verd10b.fnt	7	0	0	8	Name
+	Button	30722	653	511	36	18	seerbtn2.def	2	After closing, the view will move on the last seer hut clicked.
+	Text	51	74	98	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	52	74	130	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	53	74	162	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	54	74	194	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	55	74	226	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	56	74	258	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	57	74	290	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	58	74	322	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	59	74	354	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	60	74	386	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	61	226	34	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	62	226	66	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	63	226	98	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	64	226	130	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	65	226	162	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	66	226	194	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	67	226	226	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	68	226	258	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	69	226	290	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	70	226	322	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	71	226	354	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	72	226	386	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	73	378	34	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	74	378	66	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	75	378	98	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	76	378	130	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	77	378	162	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	78	378	194	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	79	378	226	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	80	378	258	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	81	378	290	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	82	378	322	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	83	378	354	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	84	378	386	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	85	530	34	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	86	530	66	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	87	530	98	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	88	530	130	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	89	530	162	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	90	530	194	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	91	530	226	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	92	530	258	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	93	530	290	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	94	530	322	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	95	530	354	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Text	96	530	386	88	24		Verd10b.fnt	7	0	0	8	Click to select this Seer Hut
+	Def	97	162	27	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	98	162	59	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	99	162	91	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	100	162	123	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	101	162	155	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	102	162	187	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	103	162	219	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	104	162	251	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	105	162	283	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	106	162	315	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	107	162	347	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	108	162	379	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	109	314	27	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	110	314	59	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	111	314	91	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	112	314	123	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	113	314	155	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	114	314	187	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	115	314	219	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	116	314	251	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	117	314	283	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	118	314	315	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	119	314	347	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	120	314	379	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	121	466	27	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	122	466	59	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	123	466	91	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	124	466	123	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	125	466	155	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	126	466	187	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	127	466	219	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	128	466	251	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	129	466	283	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	130	466	315	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	131	466	347	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	132	466	379	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	133	618	27	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	134	618	59	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	135	618	91	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	136	618	123	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	137	618	155	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	138	618	187	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	139	618	219	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	140	618	251	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	141	618	283	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	142	618	315	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	143	618	347	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	144	618	379	28	24	seerhq5.def	0	16	Right click for extra-infos
+	Def	145	260	-1	164	26	seer-tt.def	0	16	
+	Def	6	46	185	24	28	serscdr.def	3	16	Select this Seer Hut
+	#	211	-1	-1	416	552	101	-1		502
+	Def	500	56	28	308	479	BorderGF.def	0	16	
+	Text	501	62	420	296	80		Tiny.fnt	7	0	1	8	Description
+	Text	502	8	528	408	32		SmalFont.fnt	7	0	1	8	
+	Def	1	60	29	19	32	brdframe.def	0	16	Select this border guard
+	Button	30722	373	527	36	18	seerbtn2.def	2	Close dialog
+	Def	2	136	29	19	32	brdframe.def	0	16	Select this border guard
+	Def	3	213	29	19	32	brdframe.def	0	16	Select this border guard
+	Def	4	290	29	19	32	brdframe.def	0	16	Select this border guard
+	Def	5	60	62	19	32	brdframe.def	0	16	Select this border guard
+	Def	6	136	62	19	32	brdframe.def	0	16	Select this border guard
+	Def	7	213	62	19	32	brdframe.def	0	16	Select this border guard
+	Def	8	290	62	19	32	brdframe.def	0	16	Select this border guard
+	Def	9	60	94	19	32	brdframe.def	0	16	Select this border guard
+	Def	10	136	94	19	32	brdframe.def	0	16	Select this border guard
+	Def	11	213	94	19	32	brdframe.def	0	16	Select this border guard
+	Def	12	290	94	19	32	brdframe.def	0	16	Select this border guard
+	Def	13	60	126	19	32	brdframe.def	0	16	Select this border guard
+	Def	14	136	126	19	32	brdframe.def	0	16	Select this border guard
+	Def	15	213	126	19	32	brdframe.def	0	16	Select this border guard
+	Def	16	290	126	19	32	brdframe.def	0	16	Select this border guard
+	Def	17	60	158	19	32	brdframe.def	0	16	Select this border guard
+	Def	18	136	158	19	32	brdframe.def	0	16	Select this border guard
+	Def	19	213	158	19	32	brdframe.def	0	16	Select this border guard
+	Def	20	290	158	19	32	brdframe.def	0	16	Select this border guard
+	Def	21	60	190	19	32	brdframe.def	0	16	Select this border guard
+	Def	22	136	190	19	32	brdframe.def	0	16	Select this border guard
+	Def	23	213	190	19	32	brdframe.def	0	16	Select this border guard
+	Def	24	290	190	19	32	brdframe.def	0	16	Select this border guard
+	Def	25	60	222	19	32	brdframe.def	0	16	Select this border guard
+	Def	26	136	222	19	32	brdframe.def	0	16	Select this border guard
+	Def	27	213	222	19	32	brdframe.def	0	16	Select this border guard
+	Def	28	290	222	19	32	brdframe.def	0	16	Select this border guard
+	Def	29	60	254	19	32	brdframe.def	0	16	Select this border guard
+	Def	30	136	254	19	32	brdframe.def	0	16	Select this border guard
+	Def	31	213	254	19	32	brdframe.def	0	16	Select this border guard
+	Def	32	290	254	19	32	brdframe.def	0	16	Select this border guard
+	Def	33	60	286	19	32	brdframe.def	0	16	Select this border guard
+	Def	34	136	286	19	32	brdframe.def	0	16	Select this border guard
+	Def	35	213	286	19	32	brdframe.def	0	16	Select this border guard
+	Def	36	290	286	19	32	brdframe.def	0	16	Select this border guard
+	Def	37	60	318	19	32	brdframe.def	0	16	Select this border guard
+	Def	38	136	318	19	32	brdframe.def	0	16	Select this border guard
+	Def	39	213	318	19	32	brdframe.def	0	16	Select this border guard
+	Def	40	290	318	19	32	brdframe.def	0	16	Select this border guard
+	Def	41	60	350	19	32	brdframe.def	0	16	Select this border guard
+	Def	42	136	350	19	32	brdframe.def	0	16	Select this border guard
+	Def	43	213	350	19	32	brdframe.def	0	16	Select this border guard
+	Def	44	290	350	19	32	brdframe.def	0	16	Select this border guard
+	Def	45	60	382	19	32	brdframe.def	0	16	Select this border guard
+	Def	46	136	382	19	32	brdframe.def	0	16	Select this border guard
+	Def	47	213	382	19	32	brdframe.def	0	16	Select this border guard
+	Def	48	290	382	19	32	brdframe.def	0	16	Select this border guard
+	Def	49	102	34	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	50	181	34	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	51	256	34	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	52	331	34	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	53	102	66	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	54	181	66	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	55	256	66	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	56	331	66	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	57	102	98	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	58	181	98	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	59	256	98	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	60	331	98	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	61	102	130	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	62	181	130	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	63	256	130	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	64	331	130	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	65	102	162	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	66	181	162	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	67	256	162	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	68	331	162	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	69	102	194	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	70	181	194	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	71	256	194	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	72	331	194	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	73	102	226	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	74	181	226	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	75	256	226	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	76	331	226	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	77	102	258	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	78	181	258	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	79	256	258	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	80	331	258	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	81	102	290	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	82	181	290	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	83	256	290	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	84	331	290	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	85	102	322	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	86	181	322	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	87	256	322	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	88	331	322	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	89	102	354	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	90	181	354	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	91	256	354	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	92	331	354	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	93	102	386	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	94	181	386	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	95	256	386	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	96	331	386	28	24	seerhq5.def	0	16	Right-click for extra infos
+	Def	97	130	1	164	26	seer-tt.def	1	16	
+	#	212	-1	-1	320	328	28	-1		18
+	Def	27	20	28	281	264	keymst.def	0	16	
+	Def	1	-8	32	96	64	seetent.def	0	16	Light-Blue Tent
+	Def	2	136	32	96	64	seetent.def	1	16	Green Tent
+	Def	3	-8	96	96	64	seetent.def	2	16	Red Tent
+	Def	4	136	96	96	64	seetent.def	3	16	Dark Blue Tent
+	Def	5	-8	160	96	64	seetent.def	4	16	Brown Tent
+	Def	6	136	160	96	64	seetent.def	5	16	Purple Tent
+	Def	7	-8	224	96	64	seetent.def	6	16	White Tent
+	Def	8	136	224	96	64	seetent.def	7	16	Black Tent
+	Def	17	74	-2	164	26	seer-tt.def	2	16	
+	Text	18	2	304	296	24		SmalFont.fnt	7	0	1	8	
+	Button	30722	278	303	36	18	seerbtn2.def	2	Close
+	Button	9	92	56	32	36	sseer.def	2	Locate Light-Blue Tent
+	Button	11	92	120	32	36	sseer.def	2	Locate Red Tent
+	Button	13	92	184	32	36	sseer.def	2	Locate Brown Tent
+	Button	15	92	248	32	36	sseer.def	2	Locate White Tent
+	Button	10	236	56	32	36	sseer.def	2	Locate Green Tent
+	Button	12	236	120	32	36	sseer.def	2	Locate Dark-Blue Tent
+	Button	14	236	184	32	36	sseer.def	2	Locate Purple Tent
+	Button	16	236	248	32	36	sseer.def	2	Locate Black Tent
+	Button	19	120	56	32	36	squest.def	2	Locate all Light-blue border gates and guards
+	Button	21	120	120	32	36	squest.def	2	Locate all Red border gates and guards
+	Button	23	120	184	32	36	squest.def	2	Locate all Brown border gates and guards
+	Button	25	120	248	32	36	squest.def	2	Locate all White border gates and guards
+	Button	20	264	56	32	36	squest.def	2	Locate all Green border gates and guards
+	Button	22	264	120	32	36	squest.def	2	Locate all Dark-blue border gates and guards
+	Button	24	264	184	32	36	squest.def	2	Locate all Purple border gates and guards
+	Button	26	264	248	32	36	squest.def	2	Locate all Black border gates and guards
+	#

@@ -33,6 +33,7 @@
 		"whom1": "her",
 		"whose0": "his",
 		"whose1": "her",
+		"none": "None",
 		"visited": "(Visited)",
 		"notVisited": "(Not Visited)",
 		"learn": "(Learn @skill@)",
@@ -123,6 +124,7 @@
 				"answer": "By spending some time @method@, @heroName@ has found that the following spells will be added to a fully built Mage Guild:"
 			},
 			"prediction": "Through @method@, @heroName@'s Mysticism skill has allowed @whom@ to find out that the next week will be a @nextWeekName@!",
+			"predictionRMB": "\n\n@heroName@'s Mysticism skill predicts the next week will be a @nextWeekName@.",
 			"distanceView": "@heroName@ spots @targetHeroName@ from a distance. With the aid of @whose0@ Mysticism skill, @who0@ can learn all about @whose1@ skills, creatures, artifacts, experience and spells. This does however cost @cost@ spell points.\n\nDo you wish to learn about these things?",
 			"method": {
 				"0": "sacrificing a@kind@ @monName@",
@@ -172,7 +174,7 @@
 			"dwelling": {
 				"elementalConflux": "{Elemental Conflux}\n\nThe teachers that train young Air, Water, Fire and Earth Elementals at this Elemental Conflux claim that they could train Storm, Ice, Energy and Magma Elementals instead, but they need 4 bars of Mithril to make new training equipment first.\n\nYou have @number@ bars of Mithril.\n\nDo you wish to give them the 4 bars of Mithril they want?",
 				"0": "{@objName@}\n\nThe teachers that train young @monName@ at this dwelling claim that they could train them to @upgMonName@ instead, but they need a bar of Mithril to make new training equipment first.\n\nYou have @number@ bars of Mithril.\n\nDo you wish to give them the bar of Mithril they want?",
-				"1": "{@objName@}\n\nThe teachers that train young @monName@ at this dwelling claim that they could train them to @upgMonName@ instead, but they need @cost@ bars of Mithril to make new training equipment first.\n\nYou have @number@ bars of Mithril.\n\nDo you wish to give them the @cost@ bars of Mithril they want?",
+				"1": "{@objName@}\n\nThe teachers that train young @monName@ at this dwelling claim that they could train them to @upgMonName@ instead, but they need @cost@ bars of Mithril to make new training equipment first.\n\nYou have @number@ bars of Mithril.\n\nDo you wish to give them the @cost@ bars of Mithril they want?"
 			},
 			"description": {
 				"0": "bar",
@@ -246,20 +248,23 @@
 		},
 		"44": {
 			"objName": "Emerald Tower",
-			"newAbilities": "New abilities",
-			"ability_1": "Flying",
-			"ability_2": "Breath attack",
-			"ability_3": "Undead",
-			"ability_4": "Unaffected by Morale",
-			"ability_5": "Strikes twice",
-			"ability_5a": "Shoots twice",
-			"ability_6": "Attack all around",
-			"ability_7": "No retaliation",
-			"ability_8": "Immune to Mind Spells",
-			"ability_9": "Immune to Fire Spells",
-			"ability_10": "No Close Combat Penalty",
+			"ability": {
+				"1": "Flying",
+				"2": "Breath attack",
+				"3": "Undead",
+				"4": "Living",
+				"5": "Unaffected by Morale",
+				"6": "Strikes twice",
+				"6a": "Shoots twice",
+				"7": "Attack all around",
+				"8": "No retaliation",
+				"9": "Immune to Mind Spells",
+				"10": "Immune to Fire Spells",
+				"11": "No Close Combat Penalty",
+				"cost": " for @mithril@ mithril"
+			},
 			"extra": "\"Wait a moment,\" the Wizard's tone carried a hint of astonishment. \"It appears that @mon@ have been enhanced before! This will take me much more efforts to enhance them even more. I'm thinking of asking a bit extra for this job.\"\n\n\"What about these?\"",
-			"extra_notEnough": "{The Wizard seems annoyed.}\n\n\"You don't have enough for the additional fee. Go away and stop wasting my time!\"\n\nDo you leave the Emerald Tower?"
+			"extra_notEnough": "{The Wizard seems annoyed.}\n\n\"You don't have enough for all the fees. Go away and stop wasting my time!\"\n\nDo you leave the Emerald Tower?"
 		},
 		"45": {
 			"noCityHall": "{Gold Reserve} \n\n Sorry, but {City Hall} must be built before the Gold Reserve can be built.",
@@ -323,9 +328,20 @@
 			"noMoney": "{Mirror of the Home-Way}\n\nThe Keeper examines the {coins} he got from you for several seconds... Then he gives them back to you with the words:\n\n'You can {ENTER} the {Mirror} with your money... but you will never leave it...'"
 		},
 		"54": {
-			"desc": "\n{Fireball attack.}",
-			"soldOut": "\n\nUsable {3} times a day.\nCome back tomorrow."
+			"descCatapult0": "Use this war machine to target your enemy's fortificatoins in siege combat.",
+			"descCatapult1": "\nUse this war machine to target your enemy's troops in non-siege combat\n\nIn non-siege combat:\n",
+			"soldOut": "\n\nUsable for {@limit@} times a day.\nCome back tomorrow.",
+			"slow0": "@mon@ slows down!",
+			"slow1": "@mon@ slow down!",
+			"hint": "@mon@ level: @lv@",
+			"desc145": "{Fireball attack.}",
+			"desc146": "",
+			"desc147": "",
+			"desc148": "\n{Restore up to @mana@ Spell Points.}"
 		},
+		"58": {
+			"counterSpyTitle": "Choose the town to protect from infiltration."
+        		},
 		"59": {
 			"singular": "Crossbowman",
 			"plural": "Crossbowmen",
@@ -371,6 +387,8 @@
 			"reward": "Upon defeating the Undead King and his guards, you find valuable gold, Mithril, and @number@ friendly Ghosts that you resurrect from the chamber's ashes!"
 		},
 		"71": {
+			"diplomatic": " Allows negotiation with monsters (stacks with Diplomacy, max at Expert level).",
+			"switch": "@art_name@\n\nWeekly upgrade status: @stat@\n\nDo you wish to change the status to @rstat@?",
 			"join": "Wearing the {Garb of the Forest Lord} has attracted volunteers to @heroName@'s army.",
 			"upgrade": "The @monName@ in @heroName@'s army have been augmented by the power of @whose@ {@artName@}.",
 			"combiDesc0": "\n\n{The Garb of the Forest Lord}\nGives 1 War Unicorn, 2 Dendroid Soldiers, 4 Battle Dwarves, 8 Centaur Captains at the start of each week.",
@@ -442,9 +460,14 @@
 			"on": "{enabled}",
 			"off": "{disabled}",
 			"switch": "@art_name@\n\nWeekly creature status: @stat@\n\nDo you wish to change the status to @rstat@?",
-			"67": " Max at @unitLimit@ additional units per stack when trading.",
-			"65": " Max at @goldLimit@ additional gold.",
 			"16": " Provokes a fight with 30 Ogres at the start of each week.",
+			"63": "Gives you 6 Royal Griffins at the start of each week.",
+			"64": " Reveals a large area around you at the start of each week.",
+			"65": " Gives you 15 gold per troop at the start of each week.",
+			"65a": " Max at @goldLimit@ additional gold.",
+			"66": " May be traded at a town to build a few structures.",
+			"67": " At the start of a week may be traded to double your number of first-level troops.",
+			"67a": " Max at @unitLimit@ additional units per stack when trading.",
 			"giveCreature": {
 				"5.1": "Impressed by @heroName@'s interest in Birds, some Royal Griffins join @whose@ army.",
 				"59.1": "Mindful of @heroName@'s devotion to Death and its Pendants, some Zombies join @whose@ army.",
@@ -497,6 +520,16 @@
 				"hint": "Transfer Resources to another Player"
 			}
 		},
+		"107": {
+			"visit": {
+				"question": "Do you stop to fish in the well?",
+				"noMovepoints": "You're too exhausted to fish right now. Try in the morning."
+			},
+			"message": {
+				"head": "After several hours you discover there's nothing but",
+				"body": "at the bottom of this well"
+			}
+		},
 		"109": {
 			"objName": "Market of Time",
 			"title": "{Market of Time}\n\n We help you regain some of your lost years by teaching meditation techniques that let you forget useless skills. This frees up your mind for new learning. We charge a nominal fee of @gold@ gold coins for our service.",
@@ -518,6 +551,10 @@
 			"land": "@heroName@ is ambushed by a band of Rogues!",
 			"water": "Suddenly, the water around @heroName@'s ship becomes alive!\n\n@heroName@ is ambushed by a band of Water Elementals!",
 			"treasure": "The Rogues had treasure!"
+		},
+		"138": {
+			"lostBottle0": "Would you like to pick up the bottle?",
+			"lostBottle1": "The bottle held a hidden message, it reads:\n@info@"
 		},
 		"169": {
 			"line1": "Rename town @name@.",
@@ -660,7 +697,8 @@
 			"reduce": "Reduces target's Defense by 25%.",
 			"block": "25% chance of blocking 50% of damage.",
 			"retaliation": "2 Extra Retaliations.",
-			"cancel": "Cancel."
+			"store": "Store @name@'s current options (by stack position).",
+			"restore": "Restore @name@'s previously stored options (by stack position)."
 		}
 	}
 }
